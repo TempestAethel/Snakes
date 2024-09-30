@@ -2,12 +2,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Generator</title>
+    <title>Advanced Image Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin-top: 30px;
         }
         #canvas-container {
             margin-top: 20px;
@@ -15,10 +15,13 @@
         canvas {
             border: 1px solid #000;
         }
+        .slider-label {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Image Generator</h1>
+    <h1>Advanced Image Generator</h1>
 
     <label for="dimensionInput">Image Dimensions (Width x Height): </label>
     <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
@@ -28,15 +31,23 @@
     <input type="text" id="colorInput" placeholder="#000000" maxlength="7">
     <br><br>
 
-    <label for="textInput">Text (can include symbols): </label>
-    <input type="text" id="textInput" placeholder="Your text here">
+    <label for="textInput">Text/Symbols (separated individually): </label>
+    <input type="text" id="textInput" placeholder="Your text or symbols here">
     <br><br>
 
     <label for="textColorInput">Text Color (Hex): </label>
     <input type="text" id="textColorInput" placeholder="#FFFFFF" maxlength="7">
     <br><br>
 
-    <button onclick="generateImage()">Generate Image</button>
+    <label for="spacingSlider" class="slider-label">Spacing between symbols: </label>
+    <input type="range" id="spacingSlider" min="10" max="100" value="30">
+    <br><br>
+
+    <input type="checkbox" id="neonCheckbox"> <label for="neonCheckbox">Neon effect</label>
+    <br><br>
+
+    <input type="checkbox" id="noRotationCheckbox"> <label for="noRotationCheckbox">Keep symbols straight (no rotation)</label>
+    <br><br>
 
     <div id="canvas-container">
         <h3>Preview:</h3>
@@ -47,11 +58,19 @@
     <button onclick="downloadImage()">Download Image</button>
 
     <script>
+        // Function to automatically update the preview on input changes
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', generateImage);
+        });
+
         function generateImage() {
             const dimension = document.getElementById('dimensionInput').value;
-            const color = document.getElementById('colorInput').value;
-            const text = document.getElementById('textInput').value;
+            const bgColor = document.getElementById('colorInput').value;
+            const text = document.getElementById('textInput').value.split(''); // Split text into individual symbols
             const textColor = document.getElementById('textColorInput').value;
+            const spacing = document.getElementById('spacingSlider').value;
+            const neonEffect = document.getElementById('neonCheckbox').checked;
+            const noRotation = document.getElementById('noRotationCheckbox').checked;
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
 
@@ -63,22 +82,33 @@
             canvas.height = height;
 
             // Set background color
-            ctx.fillStyle = color || '#FFFFFF'; // Default to white if no color is provided
+            ctx.fillStyle = bgColor || '#FFFFFF'; // Default to white if no color is provided
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Set text properties
             ctx.fillStyle = textColor || '#000000'; // Default to black if no color is provided
             ctx.font = '40px Arial';
 
-            // Randomly fill text over the entire canvas
-            for (let i = 0; i < 50; i++) { // Adjust this number to control text repetition
+            // Apply neon effect
+            if (neonEffect) {
+                ctx.shadowColor = textColor || '#000000'; // Neon glow color same as text color
+                ctx.shadowBlur = 20;
+            } else {
+                ctx.shadowBlur = 0;
+            }
+
+            // Randomly place symbols across the canvas with spacing
+            let numberOfSymbols = Math.floor(canvas.width / spacing) * Math.floor(canvas.height / spacing);
+            for (let i = 0; i < numberOfSymbols; i++) {
+                let symbol = text[i % text.length]; // Cycle through symbols if not enough
                 let randomX = Math.random() * canvas.width;
                 let randomY = Math.random() * canvas.height;
-                let randomAngle = Math.random() * 360;
+                let randomAngle = noRotation ? 0 : (Math.random() * 360); // No rotation if checkbox is checked
+
                 ctx.save();
                 ctx.translate(randomX, randomY);
                 ctx.rotate(randomAngle * Math.PI / 180);
-                ctx.fillText(text, 0, 0);
+                ctx.fillText(symbol, 0, 0);
                 ctx.restore();
             }
         }
@@ -90,6 +120,9 @@
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
+
+        // Initial call to generate the image
+        generateImage();
     </script>
 </body>
 </html>
