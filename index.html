@@ -107,6 +107,13 @@
                 <label for="textInput">Text/Symbols:</label>
                 <input type="text" id="textInput" placeholder="Your text or symbols here">
             </div>
+
+            <!-- Added Symbol Presence Slider -->
+            <div class="input-pair">
+                <label for="symbolPresence">Symbol Presence:</label>
+                <input type="range" id="symbolPresence" min="0" max="100" value="100">
+            </div>
+
             <div class="input-pair">
                 <label for="fontStyle">Font Style:</label>
                 <select id="fontStyle">
@@ -116,8 +123,16 @@
                     <option value="Georgia">Georgia</option>
                     <option value="Times New Roman">Times New Roman</option>
                     <option value="Comic Sans MS">Comic Sans MS</option>
-                    <!-- Add more fonts as needed -->
+                    <option value="Garamond">Garamond</option>
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Palatino">Palatino</option>
                 </select>
+            </div>
+
+            <!-- Added Hex Color Input for Symbols -->
+            <div class="input-pair">
+                <label for="symbolColor">Symbol Color (Hex):</label>
+                <input type="text" id="symbolColor" placeholder="#000000">
             </div>
         </div>
 
@@ -147,6 +162,12 @@
                 <input type="checkbox" id="noRotationCheckbox"> 
                 <label for="noRotationCheckbox">No Rotation</label>
             </div>
+        </div>
+
+        <!-- Added Flow Effect for Grid Symbols -->
+        <div class="input-pair">
+            <input type="checkbox" id="flowEffectCheckbox">
+            <label for="flowEffectCheckbox">Flow Effect for Grid Symbols</label>
         </div>
 
         <!-- Grid Generation and Grid Size -->
@@ -209,6 +230,14 @@
 
         document.getElementById('fontStyle').addEventListener('change', debounceGenerateImage);
 
+        const symbolPresence = document.getElementById('symbolPresence');
+        const symbolColor = document.getElementById('symbolColor').value || '#000000';
+
+        function adjustSymbolPresence(ctx, symbol, presence) {
+            // Adjust symbol's opacity or presence based on slider
+            ctx.globalAlpha = presence / 100;
+        }
+
         function generateImage() {
             const dimension = document.getElementById('dimensionInput').value;
             const gradientBackground = document.getElementById('gradientInput').value;
@@ -244,7 +273,9 @@
                 }
             }
 
-            // Draw symbols
+            const symbolPresenceValue = parseInt(symbolPresence.value);
+            const flowEffect = document.getElementById('flowEffectCheckbox').checked;
+
             function getRandomSize() {
                 return Math.random() * (sizeTo - sizeFrom) + sizeFrom;
             }
@@ -257,6 +288,9 @@
                     let symbol = text[i % text.length];
                     ctx.save();
                     ctx.font = randomSize + 'px ' + fontStyle;
+
+                    ctx.fillStyle = symbolColor;
+                    adjustSymbolPresence(ctx, symbol, symbolPresenceValue);
 
                     if (neonEffect) {
                         ctx.shadowColor = neonColor;
@@ -289,6 +323,10 @@
                         ctx.save();
                         let randomSize = getRandomSize();
                         ctx.font = randomSize + 'px ' + fontStyle;
+
+                        ctx.fillStyle = symbolColor;
+                        adjustSymbolPresence(ctx, symbol, symbolPresenceValue);
+
                         if (!noRotation) {
                             let randomAngle = Math.random() * 360;
                             ctx.translate(x, y);
@@ -296,7 +334,11 @@
                         } else {
                             ctx.translate(x, y);
                         }
-                        ctx.fillText(symbol, 0, 0);
+
+                        if (!flowEffect || Math.random() < 0.5) {
+                            ctx.fillText(symbol, 0, 0);
+                        }
+
                         ctx.restore();
                     }
                 }
