@@ -32,7 +32,7 @@
         .input-pair label {
             margin-right: 10px;
         }
-        input[type="text"], input[type="number"], input[type="color"], select {
+        input[type="text"], input[type="number"], input[type="color"], select, input[type="file"] {
             padding: 5px;
             margin-right: 10px;
             border-radius: 5px;
@@ -95,10 +95,25 @@
                 <label for="dimensionInput">Image Dimensions (WxH):</label>
                 <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
             </div>
+            <!-- Gradient Start, End Colors and Angle -->
             <div class="input-pair">
-                <label for="gradientInput">Gradient Background:</label>
-                <input type="text" id="gradientInput" placeholder="e.g., linear-gradient(90deg, rgba(0,255,253,1) 9%, rgba(130,255,0,1) 106%)">
+                <label for="gradientStartInput">Gradient Start Color:</label>
+                <input type="color" id="gradientStartInput" value="#ff0000">
             </div>
+            <div class="input-pair">
+                <label for="gradientEndInput">Gradient End Color:</label>
+                <input type="color" id="gradientEndInput" value="#0000ff">
+            </div>
+            <div class="input-pair">
+                <label for="gradientAngleInput">Gradient Angle (deg):</label>
+                <input type="number" id="gradientAngleInput" value="90" min="0" max="360">
+            </div>
+        </div>
+
+        <!-- Image Upload Input -->
+        <div class="input-pair">
+            <label for="imageUploadInput">Upload Background Image:</label>
+            <input type="file" id="imageUploadInput" accept="image/*">
         </div>
 
         <!-- Text Symbols and Font Style -->
@@ -108,12 +123,13 @@
                 <input type="text" id="textInput" placeholder="Your text or symbols here">
             </div>
 
-            <!-- Added Symbol Presence Slider -->
+            <!-- Symbol Presence Slider -->
             <div class="input-pair">
                 <label for="symbolPresence">Symbol Presence:</label>
                 <input type="range" id="symbolPresence" min="0" max="100" value="100">
             </div>
 
+            <!-- Font Style Dropdown -->
             <div class="input-pair">
                 <label for="fontStyle">Font Style:</label>
                 <select id="fontStyle">
@@ -129,7 +145,7 @@
                 </select>
             </div>
 
-            <!-- Added Hex Color Input for Symbols -->
+            <!-- Symbol Color Hex Input -->
             <div class="input-pair">
                 <label for="symbolColor">Symbol Color (Hex):</label>
                 <input type="text" id="symbolColor" placeholder="#000000">
@@ -164,7 +180,7 @@
             </div>
         </div>
 
-        <!-- Added Flow Effect for Grid Symbols -->
+        <!-- Flow Effect Checkbox -->
         <div class="input-pair">
             <input type="checkbox" id="flowEffectCheckbox">
             <label for="flowEffectCheckbox">Flow Effect for Grid Symbols</label>
@@ -192,15 +208,6 @@
         <!-- Download Button -->
         <button onclick="downloadImage()">Download Image</button>
 
-        <!-- Secret Page for Custom Shapes -->
-        <div id="secret-page">
-            <h2>Custom Shapes</h2>
-            <p>Choose a custom shape for symbol arrangement!</p>
-            <!-- Add custom shape selection -->
-        </div>
-
-        <!-- Secret Trigger -->
-        <div id="secret-trigger" onclick="toggleSecretPage()"></div>
     </div>
 
     <script>
@@ -213,34 +220,55 @@
         }
 
         document.getElementById('neonCheckbox').addEventListener('change', function() {
-            document.getElementById('neonColorInput').disabled = !this.checked;
+            const neonColorInput = document.getElementById('neonColorInput');
+            const symbolColorInput = document.getElementById('symbolColor');
+            neonColorInput.disabled = !this.checked;
+            if (this.checked) {
+                symbolColorInput.value = neonColorInput.value; // Sync symbol color with neon color
+            }
             debounceGenerateImage();
         });
 
-        document.getElementById('gridCheckbox').addEventListener('change', function() {
-            const gridEnabled = this.checked;
-            document.getElementById('gridRowsInput').disabled = !gridEnabled;
-            document.getElementById('gridColsInput').disabled = !gridEnabled;
+        document.getElementById('neonColorInput').addEventListener('input', function() {
+            const symbolColorInput = document.getElementById('symbolColor');
+            if (document.getElementById('neonCheckbox').checked) {
+                symbolColorInput.value = this.value; // Update symbol color when neon color changes
+            }
             debounceGenerateImage();
         });
 
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', debounceGenerateImage);
+        document.getElementById('symbolColor').addEventListener('input', function() {
+            if (!document.getElementById('neonCheckbox').checked) {
+                debounceGenerateImage(); // Only update symbol color when neon effect is off
+            }
         });
 
-        document.getElementById('fontStyle').addEventListener('change', debounceGenerateImage);
+        // Handle image upload
+        document.getElementById('imageUploadInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        bgImage = img;
+                        debounceGenerateImage();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
+        // Adjust symbol presence
         const symbolPresence = document.getElementById('symbolPresence');
-        const symbolColor = document.getElementById('symbolColor').value || '#000000';
 
-        function adjustSymbolPresence(ctx, symbol, presence) {
-            // Adjust symbol's opacity or presence based on slider
-            ctx.globalAlpha = presence / 100;
-        }
-
+        // Modify the generateImage function to include gradient and image
         function generateImage() {
             const dimension = document.getElementById('dimensionInput').value;
-            const gradientBackground = document.getElementById('gradientInput').value;
+            const gradientStart = document.getElementById('gradientStartInput').value;
+            const gradientEnd = document.getElementById('gradientEndInput').value;
+            const gradientAngle = parseInt(document.getElementById('gradientAngleInput').value);
             const text = document.getElementById('textInput').value.split('');
             const fontStyle = document.getElementById('fontStyle').value;
             const sizeFrom = parseInt(document.getElementById('sizeFrom').value);
@@ -254,6 +282,7 @@
             const gridCols = parseInt(document.getElementById('gridColsInput').value);
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
+            const symbolColor = document.getElementById('symbolColor').value;
 
             let dimensions = dimension.split('x');
             let width = parseInt(dimensions[0]) || 500;
@@ -262,15 +291,19 @@
             canvas.width = width;
             canvas.height = height;
 
-            // Background
-            if (gradientBackground) {
-                const gradient = ctx.createLinearGradient(0, 0, width, height);
-                try {
-                    ctx.fillStyle = gradientBackground;
-                    ctx.fillRect(0, 0, width, height);
-                } catch (error) {
-                    console.error('Invalid gradient format.');
-                }
+            // Background gradient
+            const angleInRadians = (gradientAngle * Math.PI) / 180;
+            const x = Math.cos(angleInRadians) * width;
+            const y = Math.sin(angleInRadians) * height;
+            const gradient = ctx.createLinearGradient(0, 0, x, y);
+            gradient.addColorStop(0, gradientStart);
+            gradient.addColorStop(1, gradientEnd);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw background image if present
+            if (bgImage) {
+                ctx.drawImage(bgImage, 0, 0, width, height);
             }
 
             const symbolPresenceValue = parseInt(symbolPresence.value);
@@ -351,6 +384,10 @@
             }
         }
 
+        function adjustSymbolPresence(ctx, symbol, presence) {
+            ctx.globalAlpha = presence / 100;
+        }
+
         function downloadImage() {
             const canvas = document.getElementById('imageCanvas');
             const link = document.createElement('a');
@@ -359,35 +396,6 @@
             link.click();
         }
 
-        function toggleSecretPage() {
-            const secretPage = document.getElementById('secret-page');
-            secretPage.style.display = secretPage.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Drag and drop image for background
-        document.getElementById('canvas-container').addEventListener('dragover', function(e) {
-            e.preventDefault();
-        });
-
-        document.getElementById('canvas-container').addEventListener('drop', function(e) {
-            e.preventDefault();
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        bgImage = img;
-                        debounceGenerateImage();
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Initial image generation
-        debounceGenerateImage();
     </script>
 </body>
 </html>
