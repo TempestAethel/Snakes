@@ -20,6 +20,10 @@
 <body>
     <h1>Image Generator</h1>
 
+    <label for="dimensionInput">Image Dimensions (Width x Height): </label>
+    <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
+    <br><br>
+
     <label for="colorInput">Background Color (Hex): </label>
     <input type="text" id="colorInput" placeholder="#000000" maxlength="7">
     <br><br>
@@ -28,11 +32,15 @@
     <input type="text" id="textInput" placeholder="Your text here">
     <br><br>
 
+    <label for="textColorInput">Text Color (Hex): </label>
+    <input type="text" id="textColorInput" placeholder="#FFFFFF" maxlength="7">
+    <br><br>
+
     <button onclick="generateImage()">Generate Image</button>
 
     <div id="canvas-container">
         <h3>Preview:</h3>
-        <canvas id="imageCanvas" width="500" height="300"></canvas>
+        <canvas id="imageCanvas"></canvas>
     </div>
 
     <br><br>
@@ -40,23 +48,39 @@
 
     <script>
         function generateImage() {
+            const dimension = document.getElementById('dimensionInput').value;
             const color = document.getElementById('colorInput').value;
             const text = document.getElementById('textInput').value;
+            const textColor = document.getElementById('textColorInput').value;
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
+
+            // Set canvas dimensions
+            let dimensions = dimension.split('x');
+            let width = parseInt(dimensions[0]) || 500;
+            let height = parseInt(dimensions[1]) || 300;
+            canvas.width = width;
+            canvas.height = height;
 
             // Set background color
             ctx.fillStyle = color || '#FFFFFF'; // Default to white if no color is provided
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Set text properties
-            ctx.fillStyle = '#000000'; // Text color (black)
+            ctx.fillStyle = textColor || '#000000'; // Default to black if no color is provided
             ctx.font = '40px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
 
-            // Draw text
-            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            // Randomly fill text over the entire canvas
+            for (let i = 0; i < 50; i++) { // Adjust this number to control text repetition
+                let randomX = Math.random() * canvas.width;
+                let randomY = Math.random() * canvas.height;
+                let randomAngle = Math.random() * 360;
+                ctx.save();
+                ctx.translate(randomX, randomY);
+                ctx.rotate(randomAngle * Math.PI / 180);
+                ctx.fillText(text, 0, 0);
+                ctx.restore();
+            }
         }
 
         function downloadImage() {
