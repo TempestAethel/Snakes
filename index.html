@@ -22,11 +22,6 @@
         .slider-label {
             margin-top: 10px;
         }
-        .feature-label {
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 20px;
-        }
         .input-section {
             margin-top: 10px;
         }
@@ -77,48 +72,6 @@
         <input type="number" id="gridColsInput" min="1" value="10" disabled>
     </div>
 
-    <!-- New feature inputs -->
-
-    <div class="input-section">
-        <label class="feature-label" for="lightingInput">Lighting: </label>
-        <input type="text" id="lightingInput" placeholder="e.g., bright sunlight, dimly lit">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="backgroundInput">Background: </label>
-        <input type="text" id="backgroundInput" placeholder="e.g., mountain landscape, abstract shapes">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="colorSchemeInput">Color Scheme: </label>
-        <input type="text" id="colorSchemeInput" placeholder="e.g., cool colors, warm tones">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="emotionInput">Emotion: </label>
-        <input type="text" id="emotionInput" placeholder="e.g., happy, sad, excited">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="poseActionInput">Pose or Action: </label>
-        <input type="text" id="poseActionInput" placeholder="e.g., standing confidently, sitting">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="clothingStyleInput">Clothing or Style: </label>
-        <input type="text" id="clothingStyleInput" placeholder="e.g., wearing a suit, casual jeans">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="sizeScaleInput">Size or Scale: </label>
-        <input type="text" id="sizeScaleInput" placeholder="e.g., small dog, huge mountain">
-    </div>
-
-    <div class="input-section">
-        <label class="feature-label" for="weatherInput">Weather: </label>
-        <input type="text" id="weatherInput" placeholder="e.g., clear sky, light rain, snow">
-    </div>
-
     <!-- Preview canvas -->
     <div id="canvas-container">
         <h3>Preview:</h3>
@@ -156,16 +109,6 @@
             const gridCols = parseInt(document.getElementById('gridColsInput').value);
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
-
-            // New Feature Inputs
-            const lighting = document.getElementById('lightingInput').value;
-            const background = document.getElementById('backgroundInput').value;
-            const colorScheme = document.getElementById('colorSchemeInput').value;
-            const emotion = document.getElementById('emotionInput').value;
-            const poseAction = document.getElementById('poseActionInput').value;
-            const clothingStyle = document.getElementById('clothingStyleInput').value;
-            const sizeScale = document.getElementById('sizeScaleInput').value;
-            const weather = document.getElementById('weatherInput').value;
 
             // Set canvas dimensions
             let dimensions = dimension.split('x');
