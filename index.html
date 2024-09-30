@@ -7,101 +7,171 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 30px;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+        }
+        .input-section {
+            margin: 10px 0;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"], input[type="color"] {
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="checkbox"] {
+            margin-left: 10px;
+        }
+        .slider-label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        input[type="range"] {
+            margin: 10px;
+            width: 70%;
         }
         #canvas-container {
-            margin-top: 20px;
+            margin: 20px 0;
             display: flex;
             justify-content: center;
         }
         canvas {
             border: 1px solid #000;
-            max-width: 90%;
+            max-width: 100%;
             height: auto;
         }
-        .slider-label {
-            margin-top: 10px;
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
         }
-        .input-section {
-            margin-top: 10px;
+        button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
-    <h1>Advanced Image Generator</h1>
+    <div class="container">
+        <h1>Advanced Image Generator</h1>
 
-    <!-- Existing inputs for the generator -->
-    <div class="input-section">
-        <label for="dimensionInput">Image Dimensions (Width x Height): </label>
-        <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
+        <!-- Image Dimensions -->
+        <div class="input-section">
+            <label for="dimensionInput">Image Dimensions (Width x Height):</label>
+            <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
+        </div>
+
+        <!-- Background Color -->
+        <div class="input-section">
+            <label for="colorInput">Background Color (Hex):</label>
+            <input type="color" id="colorInput" value="#FFFFFF">
+        </div>
+
+        <!-- Text Symbols -->
+        <div class="input-section">
+            <label for="textInput">Text/Symbols (separated individually):</label>
+            <input type="text" id="textInput" placeholder="Your text or symbols here">
+        </div>
+
+        <!-- Text Color -->
+        <div class="input-section">
+            <label for="textColorInput">Text Color (Hex):</label>
+            <input type="color" id="textColorInput" value="#000000">
+        </div>
+
+        <!-- Spacing Slider -->
+        <div class="input-section slider-container">
+            <label for="spacingSlider" class="slider-label">Spacing between symbols:</label>
+            <input type="range" id="spacingSlider" min="0" max="200" value="50">
+            <span id="spacingValue">50</span>px
+        </div>
+
+        <!-- Neon Effect Checkbox and Color -->
+        <div class="input-section">
+            <input type="checkbox" id="neonCheckbox"> <label for="neonCheckbox">Neon effect</label>
+            <label for="neonColorInput">Neon Color:</label>
+            <input type="color" id="neonColorInput" value="#FF00FF" disabled>
+        </div>
+
+        <!-- Keep Symbols Straight (No Rotation) -->
+        <div class="input-section">
+            <input type="checkbox" id="noRotationCheckbox"> <label for="noRotationCheckbox">Keep symbols straight (no rotation)</label>
+        </div>
+
+        <!-- No Overlap -->
+        <div class="input-section">
+            <input type="checkbox" id="noOverlapCheckbox"> <label for="noOverlapCheckbox">Ensure no overlapping of symbols</label>
+        </div>
+
+        <!-- Grid Generation -->
+        <div class="input-section">
+            <input type="checkbox" id="gridCheckbox"> <label for="gridCheckbox">Enable grid generation</label>
+        </div>
+
+        <!-- Grid Rows and Columns -->
+        <div class="input-section">
+            <label for="gridRowsInput">Grid Rows:</label>
+            <input type="number" id="gridRowsInput" min="1" value="10" disabled>
+            <label for="gridColsInput">Grid Columns:</label>
+            <input type="number" id="gridColsInput" min="1" value="10" disabled>
+        </div>
+
+        <!-- Canvas for Preview -->
+        <div id="canvas-container">
+            <canvas id="imageCanvas"></canvas>
+        </div>
+
+        <!-- Download Button -->
+        <button onclick="downloadImage()">Download Image</button>
     </div>
-
-    <div class="input-section">
-        <label for="colorInput">Background Color (Hex): </label>
-        <input type="text" id="colorInput" placeholder="#000000" maxlength="7">
-    </div>
-
-    <div class="input-section">
-        <label for="textInput">Text/Symbols (separated individually): </label>
-        <input type="text" id="textInput" placeholder="Your text or symbols here">
-    </div>
-
-    <div class="input-section">
-        <label for="textColorInput">Text Color (Hex): </label>
-        <input type="text" id="textColorInput" placeholder="#FFFFFF" maxlength="7">
-    </div>
-
-    <!-- Spacing between symbols slider -->
-    <div class="input-section">
-        <label for="spacingSlider" class="slider-label">Spacing between symbols: </label>
-        <input type="range" id="spacingSlider" min="10" max="100" value="30">
-    </div>
-
-    <!-- Checkboxes for effects and settings -->
-    <div class="input-section">
-        <input type="checkbox" id="neonCheckbox"> <label for="neonCheckbox">Neon effect</label><br>
-        <input type="checkbox" id="noRotationCheckbox"> <label for="noRotationCheckbox">Keep symbols straight (no rotation)</label><br>
-        <input type="checkbox" id="noOverlapCheckbox"> <label for="noOverlapCheckbox">Ensure no overlapping of symbols</label><br>
-        <input type="checkbox" id="gridCheckbox"> <label for="gridCheckbox">Enable grid generation</label><br>
-    </div>
-
-    <div class="input-section">
-        <label for="gridRowsInput">Grid Rows: </label>
-        <input type="number" id="gridRowsInput" min="1" value="10" disabled>
-        <label for="gridColsInput">Grid Columns: </label>
-        <input type="number" id="gridColsInput" min="1" value="10" disabled>
-    </div>
-
-    <!-- Preview canvas -->
-    <div id="canvas-container">
-        <h3>Preview:</h3>
-        <canvas id="imageCanvas"></canvas>
-    </div>
-
-    <br><br>
-    <button onclick="downloadImage()">Download Image</button>
 
     <script>
-        // Automatically update the preview on input changes
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', generateImage);
+        document.getElementById('spacingSlider').addEventListener('input', function() {
+            document.getElementById('spacingValue').textContent = this.value;
+            generateImage();
         });
 
-        // Enable/disable grid row and column inputs based on checkbox
-        document.getElementById('gridCheckbox').addEventListener('change', function () {
+        document.getElementById('neonCheckbox').addEventListener('change', function() {
+            document.getElementById('neonColorInput').disabled = !this.checked;
+            generateImage();
+        });
+
+        document.getElementById('gridCheckbox').addEventListener('change', function() {
             const gridEnabled = this.checked;
             document.getElementById('gridRowsInput').disabled = !gridEnabled;
             document.getElementById('gridColsInput').disabled = !gridEnabled;
             generateImage();
         });
 
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', generateImage);
+        });
+
         function generateImage() {
             const dimension = document.getElementById('dimensionInput').value;
             const bgColor = document.getElementById('colorInput').value;
-            const text = document.getElementById('textInput').value.split(''); // Split text into individual symbols
+            const text = document.getElementById('textInput').value.split('');
             const textColor = document.getElementById('textColorInput').value;
-            const spacing = document.getElementById('spacingSlider').value;
+            const spacing = parseInt(document.getElementById('spacingSlider').value);
             const neonEffect = document.getElementById('neonCheckbox').checked;
+            const neonColor = document.getElementById('neonColorInput').value;
             const noRotation = document.getElementById('noRotationCheckbox').checked;
             const noOverlap = document.getElementById('noOverlapCheckbox').checked;
             const gridEnabled = document.getElementById('gridCheckbox').checked;
@@ -110,38 +180,32 @@
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
 
-            // Set canvas dimensions
             let dimensions = dimension.split('x');
             let width = parseInt(dimensions[0]) || 500;
             let height = parseInt(dimensions[1]) || 300;
             canvas.width = width;
             canvas.height = height;
 
-            // Set background color
-            ctx.fillStyle = bgColor || '#FFFFFF'; // Default to white if no color is provided
+            ctx.fillStyle = bgColor || '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Set text properties
-            ctx.fillStyle = textColor || '#000000'; // Default to black if no color is provided
+            ctx.fillStyle = textColor || '#000000';
             ctx.font = '40px Arial';
 
-            // Apply neon effect
             if (neonEffect) {
-                ctx.shadowColor = textColor || '#000000'; // Neon glow color same as text color
+                ctx.shadowColor = neonColor;
                 ctx.shadowBlur = 20;
             } else {
                 ctx.shadowBlur = 0;
             }
 
-            // Function to randomly place symbols
             function placeSymbolsRandomly() {
                 const placedPositions = [];
 
                 for (let i = 0; i < 50; i++) {
-                    let symbol = text[i % text.length]; // Cycle through symbols if not enough
+                    let symbol = text[i % text.length];
                     let randomX, randomY, isOverlapping;
 
-                    // Ensure symbols don't overlap
                     do {
                         isOverlapping = false;
                         randomX = Math.random() * canvas.width;
@@ -158,7 +222,7 @@
                         }
                     } while (noOverlap && isOverlapping);
 
-                    let randomAngle = noRotation ? 0 : (Math.random() * 360); // No rotation if checkbox is checked
+                    let randomAngle = noRotation ? 0 : (Math.random() * 360);
                     ctx.save();
                     ctx.translate(randomX, randomY);
                     ctx.rotate(randomAngle * Math.PI / 180);
@@ -169,27 +233,34 @@
                 }
             }
 
-            // Function to place symbols in a grid
             function placeSymbolsInGrid() {
                 let cellWidth = canvas.width / gridCols;
                 let cellHeight = canvas.height / gridRows;
-                let placedPositions = [];
 
                 for (let row = 0; row < gridRows; row++) {
                     for (let col = 0; col < gridCols; col++) {
-                        let symbol = text[(row * gridCols + col) % text.length]; // Cycle through symbols
+                        let symbol = text[(row * gridCols + col) %
+                        text.length];
                         let x = col * cellWidth + cellWidth / 2;
                         let y = row * cellHeight + cellHeight / 2;
-                        ctx.save();
-                        ctx.translate(x, y);
-                        ctx.fillText(symbol, 0, 0);
-                        ctx.restore();
-                        placedPositions.push({ x: x, y: y });
+
+                        if (noRotation) {
+                            ctx.save();
+                            ctx.fillText(symbol, x, y);
+                            ctx.restore();
+                        } else {
+                            let randomAngle = Math.random() * 360;
+                            ctx.save();
+                            ctx.translate(x, y);
+                            ctx.rotate(randomAngle * Math.PI / 180);
+                            ctx.fillText(symbol, 0, 0);
+                            ctx.restore();
+                        }
                     }
                 }
             }
 
-            // Generate symbols either randomly or on a grid
+            // Choose whether to place symbols randomly or in a grid
             if (gridEnabled) {
                 placeSymbolsInGrid();
             } else {
@@ -200,12 +271,12 @@
         function downloadImage() {
             const canvas = document.getElementById('imageCanvas');
             const link = document.createElement('a');
-            link.download = 'generated-image.png';
             link.href = canvas.toDataURL('image/png');
+            link.download = 'generated_image.png';
             link.click();
         }
 
-        // Initial call to generate the image
+        // Initial image generation
         generateImage();
     </script>
 </body>
