@@ -32,7 +32,7 @@
         .input-pair label {
             margin-right: 10px;
         }
-        input[type="text"], input[type="number"], input[type="color"], select, input[type="file"] {
+        input[type="text"], input[type="number"], input[type="color"], select {
             padding: 5px;
             margin-right: 10px;
             border-radius: 5px;
@@ -46,6 +46,8 @@
             display: flex;
             justify-content: center;
             position: relative;
+            border: 2px dashed #aaa;
+            padding: 10px;
         }
         canvas {
             border: 1px solid #000;
@@ -64,24 +66,6 @@
         }
         button:hover {
             background-color: #218838;
-        }
-        #secret-page {
-            display: none;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            padding: 20px;
-            background: #f1f1f1;
-            border: 1px solid #ccc;
-        }
-        #secret-trigger {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            z-index: 10;
         }
     </style>
 </head>
@@ -108,12 +92,6 @@
                 <label for="gradientAngleInput">Gradient Angle (deg):</label>
                 <input type="number" id="gradientAngleInput" value="90" min="0" max="360">
             </div>
-        </div>
-
-        <!-- Image Upload Input -->
-        <div class="input-pair">
-            <label for="imageUploadInput">Upload Background Image:</label>
-            <input type="file" id="imageUploadInput" accept="image/*">
         </div>
 
         <!-- Text Symbols and Font Style -->
@@ -200,7 +178,7 @@
             </div>
         </div>
 
-        <!-- Canvas for Preview -->
+        <!-- Canvas for Preview (with Drag and Drop) -->
         <div id="canvas-container">
             <canvas id="imageCanvas"></canvas>
         </div>
@@ -218,6 +196,28 @@
             clearTimeout(timeout);
             timeout = setTimeout(generateImage, 300);
         }
+
+        // Enable drag-and-drop for background image
+        document.getElementById('canvas-container').addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        document.getElementById('canvas-container').addEventListener('drop', function(e) {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        bgImage = img;
+                        debounceGenerateImage();
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         document.getElementById('neonCheckbox').addEventListener('change', function() {
             const neonColorInput = document.getElementById('neonColorInput');
@@ -243,27 +243,8 @@
             }
         });
 
-        // Handle image upload
-        document.getElementById('imageUploadInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        bgImage = img;
-                        debounceGenerateImage();
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Adjust symbol presence
         const symbolPresence = document.getElementById('symbolPresence');
 
-        // Modify the generateImage function to include gradient and image
         function generateImage() {
             const dimension = document.getElementById('dimensionInput').value;
             const gradientStart = document.getElementById('gradientStartInput').value;
