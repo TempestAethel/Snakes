@@ -48,14 +48,11 @@
             position: relative;
             border: 2px dashed #aaa;
             padding: 10px;
-            height: 500px; /* Set a fixed height */
-            overflow: hidden; /* Prevent overflow */
         }
         canvas {
             border: 1px solid #000;
-            width: 100%; /* Set width to 100% for better fit */
-            height: 100%; /* Set height to 100% for better fit */
-            display: block; /* Remove inline-block spacing */
+            max-width: 100%;
+            height: auto;
         }
         button {
             padding: 10px 20px;
@@ -129,7 +126,7 @@
             <!-- Symbol Color Hex Input -->
             <div class="input-pair">
                 <label for="symbolColor">Symbol Color (Hex):</label>
-                <input type="text" id="symbolColor" placeholder="#00FF00" value="#00FF00"> <!-- Set initial neon-like color -->
+                <input type="text" id="symbolColor" placeholder="#000000">
             </div>
         </div>
 
@@ -240,110 +237,138 @@
             debounceGenerateImage();
         });
 
-        document.getElementById('gridCheckbox').addEventListener('change', function() {
-            const isChecked = this.checked;
-            document.getElementById('gridRowsInput').disabled = !isChecked;
-            document.getElementById('gridColsInput').disabled = !isChecked;
-            debounceGenerateImage();
+        document.getElementById('symbolColor').addEventListener('input', function() {
+            if (!document.getElementById('neonCheckbox').checked) {
+                debounceGenerateImage(); // Only update symbol color when neon effect is off
+            }
         });
 
+        const symbolPresence = document.getElementById('symbolPresence');
         function generateImage() {
+            const dimension = document.getElementById('dimensionInput').value;
+            const gradientStart = document.getElementById('gradientStartInput').value;
+            const gradientEnd = document.getElementById('gradientEndInput').value;
+            const gradientAngle = parseInt(document.getElementById('gradientAngleInput').value);
+            const text = document.getElementById('textInput').value.split('');
+            const fontStyle = document.getElementById('fontStyle').value;
+            const sizeFrom = parseInt(document.getElementById('sizeFrom').value);
+            const sizeTo = parseInt(document.getElementById('sizeTo').value);
+            const symbolCount = parseInt(document.getElementById('symbolCount').value);
+            const neonEffect = document.getElementById('neonCheckbox').checked;
+            const neonColor = document.getElementById('neonColorInput').value;
+            const noRotation = document.getElementById('noRotationCheckbox').checked;
+            const gridEnabled = document.getElementById('gridCheckbox').checked;
+            const gridRows = parseInt(document.getElementById('gridRowsInput').value);
+            const gridCols = parseInt(document.getElementById('gridColsInput').value);
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
+            const symbolColor = document.getElementById('symbolColor').value;
 
-            const dimensions = document.getElementById('dimensionInput').value.split('x');
-            const width = parseInt(dimensions[0]) || canvas.width;
-            const height = parseInt(dimensions[1]) || canvas.height;
+            let dimensions = dimension.split('x');
+            let width = parseInt(dimensions[0]) || 500;
+            let height = parseInt(dimensions[1]) || 300;
 
             canvas.width = width;
             canvas.height = height;
 
-            // Create gradient background
-            const gradientStartColor = document.getElementById('gradientStartInput').value;
-            const gradientEndColor = document.getElementById('gradientEndInput').value;
-            const gradientAngle = (document.getElementById('gradientAngleInput').value || 90) * Math.PI / 180;
-
-            const gradient = ctx.createLinearGradient(0, 0, width * Math.cos(gradientAngle), height * Math.sin(gradientAngle));
-            gradient.addColorStop(0, gradientStartColor);
-            gradient.addColorStop(1, gradientEndColor);
+            // Background gradient
+            const angleInRadians = (gradientAngle * Math.PI) / 180;
+            const x = Math.cos(angleInRadians) * width;
+            const y = Math.sin(angleInRadians) * height;
+            const gradient = ctx.createLinearGradient(0, 0, x, y);
+            gradient.addColorStop(0, gradientStart);
+            gradient.addColorStop(1, gradientEnd);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
 
-            // Draw background image if exists
+            // Draw background image if present
             if (bgImage) {
                 ctx.drawImage(bgImage, 0, 0, width, height);
             }
 
-            // Draw symbols
-            const textInput = document.getElementById('textInput').value;
-            const symbolPresence = document.getElementById('symbolPresence').value / 100;
-            const symbolColor = document.getElementById('symbolColor').value;
-            const fontSizeFrom = parseInt(document.getElementById('sizeFrom').value) || 20;
-            const fontSizeTo = parseInt(document.getElementById('sizeTo').value) || 60;
-            const symbolCount = parseInt(document.getElementById('symbolCount').value) || 10;
-            const fontStyle = document.getElementById('fontStyle').value;
-            const noRotation = document.getElementById('noRotationCheckbox').checked;
+            const symbolPresenceValue = parseInt(symbolPresence.value);
+            const flowEffect = document.getElementById('flowEffectCheckbox').checked;
+            function getRandomSize() {
+                return Math.random() * (sizeTo - sizeFrom) + sizeFrom;
+            }
 
-            ctx.font = `${fontSizeFrom}px ${fontStyle}`;
-            ctx.fillStyle = symbolColor;
-
-            for (let i = 0; i < symbolCount; i++) {
-                const x = Math.random() * width;
-                const y = Math.random() * height;
-                const fontSize = Math.random() * (fontSizeTo - fontSizeFrom) + fontSizeFrom;
-
-                ctx.font = `${fontSize}px ${fontStyle}`;
-                ctx.fillStyle = symbolColor;
-
-                if (Math.random() < symbolPresence) {
+            function placeSymbolsRandomly() {
+                for (let i = 0; i < symbolCount; i++) {
+                    let randomX = Math.random() * width;
+                    let randomY = Math.random() * height;
+                    let randomSize = getRandomSize();
+                    let symbol = text[i % text.length];
                     ctx.save();
-                    if (!noRotation) {
-                        ctx.translate(x, y);
-                        ctx.rotate(Math.random() * Math.PI * 2);
-                        ctx.fillText(textInput, 0, 0);
-                        ctx.restore();
+                    ctx.font = randomSize + 'px ' + fontStyle;
+
+                    ctx.fillStyle = symbolColor;
+                    adjustSymbolPresence(ctx, symbol, symbolPresenceValue);
+
+                    if (neonEffect) {
+                        ctx.shadowColor = neonColor;
+                        ctx.shadowBlur = 10;
                     } else {
-                        ctx.fillText(textInput, x, y);
+                        ctx.shadowBlur = 0;
+                    }
+
+                    if (!noRotation) {
+                        let randomAngle = Math.random() * 360;
+                        ctx.translate(randomX, randomY);
+                        ctx.rotate(randomAngle * Math.PI / 180);
+                    } else {
+                        ctx.translate(randomX, randomY);
+                    }
+                    ctx.fillText(symbol, 0, 0);
+                    ctx.restore();
+                }
+            }
+
+            function placeSymbolsInGrid() {
+                let cellWidth = canvas.width / gridCols;
+                let cellHeight = canvas.height / gridRows;
+                for (let row = 0; row < gridRows; row++) {
+                    for (let col = 0; col < gridCols; col++) {
+                        let symbol = text[(row * gridCols + col) % text.length];
+                        let x = col * cellWidth + cellWidth / 2;
+                        let y = row * cellHeight + cellHeight / 2;
+                        ctx.save();
+                        let randomSize = getRandomSize();
+                        ctx.font = randomSize + 'px ' + fontStyle;
+                        ctx.fillStyle = symbolColor;
+                        adjustSymbolPresence(ctx, symbol, symbolPresenceValue);
+                        if (!noRotation) {
+                            let randomAngle = Math.random() * 360;
+                            ctx.translate(x, y);
+                            ctx.rotate(randomAngle * Math.PI / 180);
+                        } else {
+                            ctx.translate(x, y);
+                        }
+                        if (!flowEffect || Math.random() < 0.5) {
+                            ctx.fillText(symbol, 0, 0);
+                        }
+                        ctx.restore();
                     }
                 }
             }
 
-            // Draw grid if enabled
-            if (document.getElementById('gridCheckbox').checked) {
-                const rows = parseInt(document.getElementById('gridRowsInput').value) || 10;
-                const cols = parseInt(document.getElementById('gridColsInput').value) || 10;
-                const gridCellWidth = width / cols;
-                const gridCellHeight = height / rows;
-
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-                ctx.lineWidth = 1;
-
-                for (let r = 1; r < rows; r++) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, r * gridCellHeight);
-                    ctx.lineTo(width, r * gridCellHeight);
-                    ctx.stroke();
-                }
-
-                for (let c = 1; c < cols; c++) {
-                    ctx.beginPath();
-                    ctx.moveTo(c * gridCellWidth, 0);
-                    ctx.lineTo(c * gridCellWidth, height);
-                    ctx.stroke();
-                }
+            if (gridEnabled) {
+                placeSymbolsInGrid();
+            } else {
+                placeSymbolsRandomly();
             }
         }
 
+        function adjustSymbolPresence(ctx, symbol, presence) {
+            ctx.globalAlpha = presence / 100;
+        }
         function downloadImage() {
             const canvas = document.getElementById('imageCanvas');
             const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
             link.download = 'generated_image.png';
-            link.href = canvas.toDataURL();
             link.click();
         }
 
-        // Initial image generation on load
-        window.onload = debounceGenerateImage;
     </script>
 </body>
 </html>
