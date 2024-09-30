@@ -17,32 +17,29 @@
         }
         .input-section {
             margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
         }
-        label {
+        .input-section label {
             font-weight: bold;
         }
-        input[type="text"], input[type="number"], input[type="color"] {
+        .input-pair {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-pair label {
+            margin-right: 10px;
+        }
+        input[type="text"], input[type="number"], input[type="color"], select {
             padding: 5px;
-            margin: 5px;
+            margin-right: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
         input[type="checkbox"] {
             margin-left: 10px;
-        }
-        .slider-label {
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
-        .slider-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        input[type="range"] {
-            margin: 10px;
-            width: 70%;
         }
         #canvas-container {
             margin: 20px 0;
@@ -63,20 +60,28 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #218838;
         }
-        #canvas-container {
-            border: 1px solid #ddd;
-            position: relative;
-            display: inline-block;
-        }
-        #imageCanvas {
-            border: 1px solid #000;
-        }
         #secret-page {
             display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding: 20px;
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+        }
+        #secret-trigger {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 10;
         }
     </style>
 </head>
@@ -84,69 +89,78 @@
     <div class="container">
         <h1>Advanced Image Generator</h1>
 
-        <!-- Image Dimensions -->
+        <!-- Image Dimensions and Gradient Background -->
         <div class="input-section">
-            <label for="dimensionInput">Image Dimensions (Width x Height):</label>
-            <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
+            <div class="input-pair">
+                <label for="dimensionInput">Image Dimensions (WxH):</label>
+                <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
+            </div>
+            <div class="input-pair">
+                <label for="gradientInput">Gradient Background:</label>
+                <input type="text" id="gradientInput" placeholder="e.g., linear-gradient(90deg, rgba(0,255,253,1) 9%, rgba(130,255,0,1) 106%)">
+            </div>
         </div>
 
-        <!-- Gradient Backgrounds -->
+        <!-- Text Symbols and Font Style -->
         <div class="input-section">
-            <label for="gradientInput">Gradient Background (CSS Gradient):</label>
-            <input type="text" id="gradientInput" placeholder="e.g., linear-gradient(to right, #ff7e5f, #feb47b)">
+            <div class="input-pair">
+                <label for="textInput">Text/Symbols:</label>
+                <input type="text" id="textInput" placeholder="Your text or symbols here">
+            </div>
+            <div class="input-pair">
+                <label for="fontStyle">Font Style:</label>
+                <select id="fontStyle">
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                    <!-- Add more fonts as needed -->
+                </select>
+            </div>
         </div>
 
-        <!-- Text Symbols -->
+        <!-- Symbol Size and Number of Symbols -->
         <div class="input-section">
-            <label for="textInput">Text/Symbols (separated individually):</label>
-            <input type="text" id="textInput" placeholder="Your text or symbols here">
+            <div class="input-pair">
+                <label for="sizeFrom">Size From:</label>
+                <input type="number" id="sizeFrom" min="10" value="20">
+                <label for="sizeTo">To:</label>
+                <input type="number" id="sizeTo" min="30" value="60">
+            </div>
+            <div class="input-pair">
+                <label for="symbolCount">Number of Symbols:</label>
+                <input type="number" id="symbolCount" min="1" value="10">
+            </div>
         </div>
 
-        <!-- Font Style Dropdown -->
+        <!-- Neon Effect and No Rotation -->
         <div class="input-section">
-            <label for="fontStyle">Font Style:</label>
-            <select id="fontStyle">
-                <option value="Arial">Arial</option>
-                <option value="Verdana">Verdana</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Comic Sans MS">Comic Sans MS</option>
-                <!-- Add more fonts as needed -->
-            </select>
+            <div class="input-pair">
+                <input type="checkbox" id="neonCheckbox"> 
+                <label for="neonCheckbox">Neon Effect</label>
+                <label for="neonColorInput">Neon Color:</label>
+                <input type="color" id="neonColorInput" value="#FF00FF" disabled>
+            </div>
+            <div class="input-pair">
+                <input type="checkbox" id="noRotationCheckbox"> 
+                <label for="noRotationCheckbox">No Rotation</label>
+            </div>
         </div>
 
-        <!-- Symbol Size Range -->
+        <!-- Grid Generation and Grid Size -->
         <div class="input-section">
-            <label for="sizeFrom">Size From:</label>
-            <input type="number" id="sizeFrom" min="10" value="20">
-            <label for="sizeTo">Size To:</label>
-            <input type="number" id="sizeTo" min="30" value="60">
-        </div>
-
-        <!-- Neon Effect Checkbox and Color -->
-        <div class="input-section">
-            <input type="checkbox" id="neonCheckbox"> <label for="neonCheckbox">Neon effect</label>
-            <label for="neonColorInput">Neon Color:</label>
-            <input type="color" id="neonColorInput" value="#FF00FF" disabled>
-        </div>
-
-        <!-- Keep Symbols Straight (No Rotation) -->
-        <div class="input-section">
-            <input type="checkbox" id="noRotationCheckbox"> <label for="noRotationCheckbox">Keep symbols straight (no rotation)</label>
-        </div>
-
-        <!-- Grid Generation -->
-        <div class="input-section">
-            <input type="checkbox" id="gridCheckbox"> <label for="gridCheckbox">Enable grid generation</label>
-        </div>
-
-        <!-- Grid Rows and Columns -->
-        <div class="input-section">
-            <label for="gridRowsInput">Grid Rows:</label>
-            <input type="number" id="gridRowsInput" min="1" value="10" disabled>
-            <label for="gridColsInput">Grid Columns:</label>
-            <input type="number" id="gridColsInput" min="1" value="10" disabled>
+            <div class="input-pair">
+                <input type="checkbox" id="gridCheckbox"> 
+                <label for="gridCheckbox">Grid Generation</label>
+            </div>
+            <div class="input-pair">
+                <label for="gridRowsInput">Rows:</label>
+                <input type="number" id="gridRowsInput" min="1" value="10" disabled>
+                <label for="gridColsInput">Cols:</label>
+                <input type="number" id="gridColsInput" min="1" value="10" disabled>
+            </div>
         </div>
 
         <!-- Canvas for Preview -->
@@ -160,9 +174,12 @@
         <!-- Secret Page for Custom Shapes -->
         <div id="secret-page">
             <h2>Custom Shapes</h2>
-            <p>Choose a custom shape to use for symbol arrangement!</p>
-            <!-- Add custom shape selection here -->
+            <p>Choose a custom shape for symbol arrangement!</p>
+            <!-- Add custom shape selection -->
         </div>
+
+        <!-- Secret Trigger -->
+        <div id="secret-trigger" onclick="toggleSecretPage()"></div>
     </div>
 
     <script>
@@ -199,6 +216,7 @@
             const fontStyle = document.getElementById('fontStyle').value;
             const sizeFrom = parseInt(document.getElementById('sizeFrom').value);
             const sizeTo = parseInt(document.getElementById('sizeTo').value);
+            const symbolCount = parseInt(document.getElementById('symbolCount').value);
             const neonEffect = document.getElementById('neonCheckbox').checked;
             const neonColor = document.getElementById('neonColorInput').value;
             const noRotation = document.getElementById('noRotationCheckbox').checked;
@@ -211,39 +229,42 @@
             let dimensions = dimension.split('x');
             let width = parseInt(dimensions[0]) || 500;
             let height = parseInt(dimensions[1]) || 300;
+
             canvas.width = width;
             canvas.height = height;
 
+            // Background
             if (gradientBackground) {
-                ctx.fillStyle = gradientBackground;
-            } else {
-                ctx.fillStyle = '#FFFFFF';
-            }
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.font = '30px ' + fontStyle;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            if (neonEffect) {
-                ctx.shadowColor = neonColor;
-                ctx.shadowBlur = 10;
-            } else {
-                ctx.shadowBlur = 0;
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                try {
+                    ctx.fillStyle = gradientBackground;
+                    ctx.fillRect(0, 0, width, height);
+                } catch (error) {
+                    console.error('Invalid gradient format.');
+                }
             }
 
+            // Draw symbols
             function getRandomSize() {
-                return Math.floor(Math.random() * (sizeTo - sizeFrom + 1)) + sizeFrom;
+                return Math.random() * (sizeTo - sizeFrom) + sizeFrom;
             }
 
             function placeSymbolsRandomly() {
-                for (let i = 0; i < text.length; i++) {
-                    let randomX = Math.random() * canvas.width;
-                    let randomY = Math.random() * canvas.height;
+                for (let i = 0; i < symbolCount; i++) {
+                    let randomX = Math.random() * width;
+                    let randomY = Math.random() * height;
+                    let randomSize = getRandomSize();
                     let symbol = text[i % text.length];
                     ctx.save();
-                    let randomSize = getRandomSize();
                     ctx.font = randomSize + 'px ' + fontStyle;
+
+                    if (neonEffect) {
+                        ctx.shadowColor = neonColor;
+                        ctx.shadowBlur = 10;
+                    } else {
+                        ctx.shadowBlur = 0;
+                    }
+
                     if (!noRotation) {
                         let randomAngle = Math.random() * 360;
                         ctx.translate(randomX, randomY);
@@ -294,6 +315,11 @@
             link.href = canvas.toDataURL('image/png');
             link.download = 'generated_image.png';
             link.click();
+        }
+
+        function toggleSecretPage() {
+            const secretPage = document.getElementById('secret-page');
+            secretPage.style.display = secretPage.style.display === 'none' ? 'block' : 'none';
         }
 
         // Drag and drop image for background
