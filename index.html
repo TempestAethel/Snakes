@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #canvas-container {
+            margin-top: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Generator</h1>
+
+    <label for="colorInput">Background Color (Hex): </label>
+    <input type="text" id="colorInput" placeholder="#000000" maxlength="7">
+    <br><br>
+
+    <label for="textInput">Text (can include symbols): </label>
+    <input type="text" id="textInput" placeholder="Your text here">
+    <br><br>
+
+    <button onclick="generateImage()">Generate Image</button>
+
+    <div id="canvas-container">
+        <h3>Preview:</h3>
+        <canvas id="imageCanvas" width="500" height="300"></canvas>
+    </div>
+
+    <br><br>
+    <button onclick="downloadImage()">Download Image</button>
+
+    <script>
+        function generateImage() {
+            const color = document.getElementById('colorInput').value;
+            const text = document.getElementById('textInput').value;
+            const canvas = document.getElementById('imageCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set background color
+            ctx.fillStyle = color || '#FFFFFF'; // Default to white if no color is provided
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Set text properties
+            ctx.fillStyle = '#000000'; // Text color (black)
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Draw text
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('imageCanvas');
+            const link = document.createElement('a');
+            link.download = 'generated-image.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
