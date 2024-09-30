@@ -143,25 +143,32 @@
     </div>
 
     <script>
+        let timeout;
+
+        function debounceGenerateImage() {
+            clearTimeout(timeout);
+            timeout = setTimeout(generateImage, 300); // Adding debounce delay for smoother updates
+        }
+
         document.getElementById('spacingSlider').addEventListener('input', function() {
             document.getElementById('spacingValue').textContent = this.value;
-            generateImage();
+            debounceGenerateImage();
         });
 
         document.getElementById('neonCheckbox').addEventListener('change', function() {
             document.getElementById('neonColorInput').disabled = !this.checked;
-            generateImage();
+            debounceGenerateImage();
         });
 
         document.getElementById('gridCheckbox').addEventListener('change', function() {
             const gridEnabled = this.checked;
             document.getElementById('gridRowsInput').disabled = !gridEnabled;
             document.getElementById('gridColsInput').disabled = !gridEnabled;
-            generateImage();
+            debounceGenerateImage();
         });
 
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', generateImage);
+            input.addEventListener('input', debounceGenerateImage);
         });
 
         function generateImage() {
@@ -239,23 +246,20 @@
 
                 for (let row = 0; row < gridRows; row++) {
                     for (let col = 0; col < gridCols; col++) {
-                        let symbol = text[(row * gridCols + col) %
-                        text.length];
+                        let symbol = text[(row * gridCols + col) % text.length];
                         let x = col * cellWidth + cellWidth / 2;
                         let y = row * cellHeight + cellHeight / 2;
 
+                        ctx.save();
                         if (noRotation) {
-                            ctx.save();
                             ctx.fillText(symbol, x, y);
-                            ctx.restore();
                         } else {
                             let randomAngle = Math.random() * 360;
-                            ctx.save();
                             ctx.translate(x, y);
                             ctx.rotate(randomAngle * Math.PI / 180);
                             ctx.fillText(symbol, 0, 0);
-                            ctx.restore();
                         }
+                        ctx.restore();
                     }
                 }
             }
@@ -277,7 +281,7 @@
         }
 
         // Initial image generation
-        generateImage();
+        debounceGenerateImage();
     </script>
 </body>
 </html>
