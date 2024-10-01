@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,117 +5,196 @@
     <title>Matrix Rain Generator</title>
     <style>
         body {
-            background-color: black;
-            margin: 0;
-            overflow: hidden;
             font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+        }
+        .input-section {
+            margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .input-section label {
+            font-weight: bold;
+        }
+        .input-pair {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-pair label {
+            margin-right: 10px;
+        }
+        input[type="text"], input[type="number"], input[type="color"], select {
+            padding: 5px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="checkbox"] {
+            margin-left: 10px;
+        }
+        #canvas-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            border: 2px dashed #aaa;
+            padding: 10px;
         }
         canvas {
-            display: block;
+            border: 1px solid #000;
+            max-width: 100%;
+            height: auto;
         }
-        .control-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
             color: white;
-            z-index: 10;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
         }
-        .control-panel label, input, select {
-            display: block;
-            margin: 5px 0;
-        }
-        input[type="color"], input[type="number"] {
-            padding: 5px;
+        button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
-    <div class="control-panel">
-        <label for="fontStyle">Font Style:</label>
-        <select id="fontStyle">
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Georgia">Georgia</option>
-        </select>
+    <div class="container">
+        <h1>Matrix Rain Generator</h1>
 
-        <label for="symbolColor">Symbol Color:</label>
-        <input type="color" id="symbolColor" value="#00ff00">
+        <!-- Input fields for text, color, size, etc. -->
+        <div class="input-section">
+            <div class="input-pair">
+                <label for="textInput">Matrix Symbols:</label>
+                <input type="text" id="textInput" placeholder="Enter symbols (e.g. 01)">
+            </div>
+            <div class="input-pair">
+                <label for="symbolColor">Symbol Color:</label>
+                <input type="color" id="symbolColor" value="#00ff00">
+            </div>
+            <div class="input-pair">
+                <label for="bgColor">Background Color:</label>
+                <input type="color" id="bgColor" value="#000000">
+            </div>
+            <div class="input-pair">
+                <label for="fontStyle">Font Style:</label>
+                <select id="fontStyle">
+                    <option value="monospace">Monospace</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+            </div>
+            <div class="input-pair">
+                <label for="fontSize">Font Size:</label>
+                <input type="number" id="fontSize" value="16" min="10">
+            </div>
+            <div class="input-pair">
+                <label for="rainSpeed">Rain Speed:</label>
+                <input type="number" id="rainSpeed" value="50" min="10">
+            </div>
+        </div>
 
-        <label for="sizeFrom">Symbol Size (Min):</label>
-        <input type="number" id="sizeFrom" value="12" min="5">
+        <!-- Canvas container -->
+        <div id="canvas-container">
+            <canvas id="matrixCanvas"></canvas>
+        </div>
 
-        <label for="sizeTo">Symbol Size (Max):</label>
-        <input type="number" id="sizeTo" value="24" min="5">
-
-        <label for="speed">Speed (1-20):</label>
-        <input type="number" id="speed" value="5" min="1" max="20">
-
-        <button onclick="startMatrixRain()">Start Matrix Rain</button>
+        <!-- Download Button -->
+        <button onclick="downloadImage()">Download Wallpaper</button>
     </div>
 
-    <canvas id="matrixCanvas"></canvas>
-
     <script>
-        const canvas = document.getElementById('matrixCanvas');
-        const ctx = canvas.getContext('2d');
+        let canvas = document.getElementById('matrixCanvas');
+        let ctx = canvas.getContext('2d');
 
-        let fontStyle = 'Arial';
-        let symbolColor = '#00ff00';
-        let sizeFrom = 12;
-        let sizeTo = 24;
-        let speed = 5;
+        // Set canvas dimensions
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const columns = [];
+        let symbols = [];
+        let columns = Math.floor(canvas.width / 20);
+        let drops = [];
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const numCols = Math.floor(canvas.width / sizeFrom);
-            for (let x = 0; x < numCols; x++) {
-                columns[x] = 0;
-            }
+        // Initialize drops
+        for (let x = 0; x < columns; x++) {
+            drops[x] = canvas.height;
         }
 
-        function getRandomChar() {
-            return chars[Math.floor(Math.random() * chars.length)];
+        // Generate random matrix symbols
+        function randomSymbol() {
+            const textInput = document.getElementById('textInput').value || '01';
+            return textInput.charAt(Math.floor(Math.random() * textInput.length));
         }
 
-        function drawMatrixRain() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        // Main function for drawing the matrix rain
+        function drawMatrix() {
+            const bgColor = document.getElementById('bgColor').value;
+            const symbolColor = document.getElementById('symbolColor').value;
+            const fontStyle = document.getElementById('fontStyle').value;
+            const fontSize = document.getElementById('fontSize').value;
+            const rainSpeed = document.getElementById('rainSpeed').value;
+
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.fillStyle = symbolColor;
-            ctx.font = `${Math.random() * (sizeTo - sizeFrom) + sizeFrom}px ${fontStyle}`;
+            ctx.font = `${fontSize}px ${fontStyle}`;
 
-            columns.forEach((y, index) => {
-                const char = getRandomChar();
-                ctx.fillText(char, index * sizeFrom, y * sizeFrom);
+            for (let i = 0; i < drops.length; i++) {
+                let text = randomSymbol();
+                let x = i * 20;
+                let y = drops[i] * 20;
 
-                if (y * sizeFrom > canvas.height && Math.random() > 0.975) {
-                    columns[index] = 0;
-                } else {
-                    columns[index] += speed / 10;
+                ctx.fillText(text, x, y);
+
+                // Reset the drop to the top of the screen
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
                 }
-            });
 
-            requestAnimationFrame(drawMatrixRain);
+                // Move the drop down
+                drops[i]++;
+            }
         }
 
-        function startMatrixRain() {
-            fontStyle = document.getElementById('fontStyle').value;
-            symbolColor = document.getElementById('symbolColor').value;
-            sizeFrom = parseInt(document.getElementById('sizeFrom').value);
-            sizeTo = parseInt(document.getElementById('sizeTo').value);
-            speed = parseInt(document.getElementById('speed').value);
-
-            resizeCanvas();
-            drawMatrixRain();
+        // Continuously update the canvas for animation
+        function updateMatrix() {
+            drawMatrix();
+            setTimeout(updateMatrix, rainSpeed);
         }
 
-        window.addEventListener('resize', resizeCanvas);
+        updateMatrix();
+
+        // Adjust the canvas size when the window is resized
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.floor(canvas.width / 20);
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = canvas.height;
+            }
+        });
+
+        // Download the canvas as an image
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'matrix_rain_wallpaper.png';
+            link.click();
+        }
     </script>
 </body>
 </html>
