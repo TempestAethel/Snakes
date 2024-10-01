@@ -68,6 +68,7 @@
             background-color: #218838;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
 </head>
 <body>
     <div class="container">
@@ -111,8 +112,9 @@
             <canvas id="matrixCanvas"></canvas>
         </div>
 
-        <!-- Download Button -->
-        <button onclick="downloadImage()">Download Wallpaper</button>
+        <!-- Buttons for Download -->
+        <button onclick="downloadImage()">Download PNG Wallpaper</button>
+        <button onclick="downloadGif()">Download GIF</button>
     </div>
 
     <script>
@@ -172,7 +174,7 @@
         // Continuously update the canvas for animation
         function updateMatrix() {
             drawMatrix();
-            setTimeout(updateMatrix, rainSpeed);
+            setTimeout(updateMatrix, 50);
         }
 
         updateMatrix();
@@ -188,12 +190,35 @@
             }
         });
 
-        // Download the canvas as an image
+        // Download the canvas as an image (PNG)
         function downloadImage() {
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
             link.download = 'matrix_rain_wallpaper.png';
             link.click();
+        }
+
+        // Download the animation as a GIF
+        function downloadGif() {
+            const gif = new GIF({
+                workers: 2,
+                quality: 10
+            });
+
+            // Capture frames for 3 seconds (adjust as needed)
+            for (let i = 0; i < 60; i++) {
+                drawMatrix(); // Manually draw the matrix in each frame
+                gif.addFrame(canvas, {copy: true, delay: 100});
+            }
+
+            gif.on('finished', function(blob) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'matrix_rain_animation.gif';
+                link.click();
+            });
+
+            gif.render();
         }
     </script>
 </body>
