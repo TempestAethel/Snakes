@@ -1,374 +1,122 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Image Generator</title>
+    <title>Matrix Rain Generator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            background-color: black;
             margin: 0;
-            padding: 0;
-        }
-        .container {
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-        }
-        .input-section {
-            margin: 10px 0;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .input-section label {
-            font-weight: bold;
-        }
-        .input-pair {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .input-pair label {
-            margin-right: 10px;
-        }
-        input[type="text"], input[type="number"], input[type="color"], select {
-            padding: 5px;
-            margin-right: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        input[type="checkbox"] {
-            margin-left: 10px;
-        }
-        #canvas-container {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            position: relative;
-            border: 2px dashed #aaa;
-            padding: 10px;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
         canvas {
-            border: 1px solid #000;
-            max-width: 100%;
-            height: auto;
+            display: block;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #28a745;
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
+            z-index: 10;
         }
-        button:hover {
-            background-color: #218838;
+        .control-panel label, input, select {
+            display: block;
+            margin: 5px 0;
+        }
+        input[type="color"], input[type="number"] {
+            padding: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Advanced Image Generator</h1>
+    <div class="control-panel">
+        <label for="fontStyle">Font Style:</label>
+        <select id="fontStyle">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+        </select>
 
-        <!-- Image Dimensions and Gradient Background -->
-        <div class="input-section">
-            <div class="input-pair">
-                <label for="dimensionInput">Image Dimensions (WxH):</label>
-                <input type="text" id="dimensionInput" placeholder="e.g., 500x300" maxlength="10">
-            </div>
-            <!-- Gradient Start, End Colors and Angle -->
-            <div class="input-pair">
-                <label for="gradientStartInput">Gradient Start Color:</label>
-                <input type="color" id="gradientStartInput" value="#ff0000">
-            </div>
-            <div class="input-pair">
-                <label for="gradientEndInput">Gradient End Color:</label>
-                <input type="color" id="gradientEndInput" value="#0000ff">
-            </div>
-            <div class="input-pair">
-                <label for="gradientAngleInput">Gradient Angle (deg):</label>
-                <input type="number" id="gradientAngleInput" value="90" min="0" max="360">
-            </div>
-        </div>
+        <label for="symbolColor">Symbol Color:</label>
+        <input type="color" id="symbolColor" value="#00ff00">
 
-        <!-- Text Symbols and Font Style -->
-        <div class="input-section">
-            <div class="input-pair">
-                <label for="textInput">Text/Symbols:</label>
-                <input type="text" id="textInput" placeholder="Your text or symbols here">
-            </div>
+        <label for="sizeFrom">Symbol Size (Min):</label>
+        <input type="number" id="sizeFrom" value="12" min="5">
 
-            <!-- Symbol Presence Slider -->
-            <div class="input-pair">
-                <label for="symbolPresence">Symbol Presence:</label>
-                <input type="range" id="symbolPresence" min="0" max="100" value="100">
-            </div>
+        <label for="sizeTo">Symbol Size (Max):</label>
+        <input type="number" id="sizeTo" value="24" min="5">
 
-            <!-- Font Style Dropdown -->
-            <div class="input-pair">
-                <label for="fontStyle">Font Style:</label>
-                <select id="fontStyle">
-                    <option value="Arial">Arial</option>
-                    <option value="Verdana">Verdana</option>
-                    <option value="Courier New">Courier New</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                    <option value="Comic Sans MS">Comic Sans MS</option>
-                    <option value="Garamond">Garamond</option>
-                    <option value="Helvetica">Helvetica</option>
-                    <option value="Palatino">Palatino</option>
-                </select>
-            </div>
+        <label for="speed">Speed (1-20):</label>
+        <input type="number" id="speed" value="5" min="1" max="20">
 
-            <!-- Symbol Color Hex Input -->
-            <div class="input-pair">
-                <label for="symbolColor">Symbol Color (Hex):</label>
-                <input type="text" id="symbolColor" placeholder="#000000">
-            </div>
-        </div>
-
-        <!-- Symbol Size and Number of Symbols -->
-        <div class="input-section">
-            <div class="input-pair">
-                <label for="sizeFrom">Size From:</label>
-                <input type="number" id="sizeFrom" min="10" value="20">
-                <label for="sizeTo">To:</label>
-                <input type="number" id="sizeTo" min="30" value="60">
-            </div>
-            <div class="input-pair">
-                <label for="symbolCount">Number of Symbols:</label>
-                <input type="number" id="symbolCount" min="1" value="10">
-            </div>
-        </div>
-
-        <!-- Neon Effect and No Rotation -->
-        <div class="input-section">
-            <div class="input-pair">
-                <input type="checkbox" id="neonCheckbox"> 
-                <label for="neonCheckbox">Neon Effect</label>
-                <label for="neonColorInput">Neon Color:</label>
-                <input type="color" id="neonColorInput" value="#FF00FF" disabled>
-            </div>
-            <div class="input-pair">
-                <input type="checkbox" id="noRotationCheckbox"> 
-                <label for="noRotationCheckbox">No Rotation</label>
-            </div>
-        </div>
-
-        <!-- Flow Effect Checkbox -->
-        <div class="input-pair">
-            <input type="checkbox" id="flowEffectCheckbox">
-            <label for="flowEffectCheckbox">Flow Effect for Grid Symbols</label>
-        </div>
-
-        <!-- Grid Generation and Grid Size -->
-        <div class="input-section">
-            <div class="input-pair">
-                <input type="checkbox" id="gridCheckbox"> 
-                <label for="gridCheckbox">Grid Generation</label>
-            </div>
-            <div class="input-pair">
-                <label for="gridRowsInput">Rows:</label>
-                <input type="number" id="gridRowsInput" min="1" value="10" disabled>
-                <label for="gridColsInput">Cols:</label>
-                <input type="number" id="gridColsInput" min="1" value="10" disabled>
-            </div>
-        </div>
-
-        <!-- Canvas for Preview (with Drag and Drop) -->
-        <div id="canvas-container">
-            <canvas id="imageCanvas"></canvas>
-        </div>
-
-        <!-- Download Button -->
-        <button onclick="downloadImage()">Download Image</button>
-
+        <button onclick="startMatrixRain()">Start Matrix Rain</button>
     </div>
 
+    <canvas id="matrixCanvas"></canvas>
+
     <script>
-        let timeout;
-        let bgImage = null;
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
 
-        function debounceGenerateImage() {
-            clearTimeout(timeout);
-            timeout = setTimeout(generateImage, 300);
+        let fontStyle = 'Arial';
+        let symbolColor = '#00ff00';
+        let sizeFrom = 12;
+        let sizeTo = 24;
+        let speed = 5;
+
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const columns = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const numCols = Math.floor(canvas.width / sizeFrom);
+            for (let x = 0; x < numCols; x++) {
+                columns[x] = 0;
+            }
         }
 
-        // Enable drag-and-drop for background image
-        document.getElementById('canvas-container').addEventListener('dragover', function(e) {
-            e.preventDefault();
-        });
+        function getRandomChar() {
+            return chars[Math.floor(Math.random() * chars.length)];
+        }
 
-        document.getElementById('canvas-container').addEventListener('drop', function(e) {
-            e.preventDefault();
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        bgImage = img;
-                        debounceGenerateImage();
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        function drawMatrixRain() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        document.getElementById('neonCheckbox').addEventListener('change', function() {
-            const neonColorInput = document.getElementById('neonColorInput');
-            const symbolColorInput = document.getElementById('symbolColor');
-            neonColorInput.disabled = !this.checked;
-            if (this.checked) {
-                symbolColorInput.value = neonColorInput.value; // Sync symbol color with neon color
-            }
-            debounceGenerateImage();
-        });
+            ctx.fillStyle = symbolColor;
+            ctx.font = `${Math.random() * (sizeTo - sizeFrom) + sizeFrom}px ${fontStyle}`;
 
-        document.getElementById('neonColorInput').addEventListener('input', function() {
-            const symbolColorInput = document.getElementById('symbolColor');
-            if (document.getElementById('neonCheckbox').checked) {
-                symbolColorInput.value = this.value; // Update symbol color when neon color changes
-            }
-            debounceGenerateImage();
-        });
+            columns.forEach((y, index) => {
+                const char = getRandomChar();
+                ctx.fillText(char, index * sizeFrom, y * sizeFrom);
 
-        document.getElementById('symbolColor').addEventListener('input', function() {
-            if (!document.getElementById('neonCheckbox').checked) {
-                debounceGenerateImage(); // Only update symbol color when neon effect is off
-            }
-        });
-
-        const symbolPresence = document.getElementById('symbolPresence');
-        function generateImage() {
-            const dimension = document.getElementById('dimensionInput').value;
-            const gradientStart = document.getElementById('gradientStartInput').value;
-            const gradientEnd = document.getElementById('gradientEndInput').value;
-            const gradientAngle = parseInt(document.getElementById('gradientAngleInput').value);
-            const text = document.getElementById('textInput').value.split('');
-            const fontStyle = document.getElementById('fontStyle').value;
-            const sizeFrom = parseInt(document.getElementById('sizeFrom').value);
-            const sizeTo = parseInt(document.getElementById('sizeTo').value);
-            const symbolCount = parseInt(document.getElementById('symbolCount').value);
-            const neonEffect = document.getElementById('neonCheckbox').checked;
-            const neonColor = document.getElementById('neonColorInput').value;
-            const noRotation = document.getElementById('noRotationCheckbox').checked;
-            const gridEnabled = document.getElementById('gridCheckbox').checked;
-            const gridRows = parseInt(document.getElementById('gridRowsInput').value);
-            const gridCols = parseInt(document.getElementById('gridColsInput').value);
-            const canvas = document.getElementById('imageCanvas');
-            const ctx = canvas.getContext('2d');
-            const symbolColor = document.getElementById('symbolColor').value;
-
-            let dimensions = dimension.split('x');
-            let width = parseInt(dimensions[0]) || 500;
-            let height = parseInt(dimensions[1]) || 300;
-
-            canvas.width = width;
-            canvas.height = height;
-
-            // Background gradient
-            const angleInRadians = (gradientAngle * Math.PI) / 180;
-            const x = Math.cos(angleInRadians) * width;
-            const y = Math.sin(angleInRadians) * height;
-            const gradient = ctx.createLinearGradient(0, 0, x, y);
-            gradient.addColorStop(0, gradientStart);
-            gradient.addColorStop(1, gradientEnd);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-
-            // Draw background image if present
-            if (bgImage) {
-                ctx.drawImage(bgImage, 0, 0, width, height);
-            }
-
-            const symbolPresenceValue = parseInt(symbolPresence.value);
-            const flowEffect = document.getElementById('flowEffectCheckbox').checked;
-            function getRandomSize() {
-                return Math.random() * (sizeTo - sizeFrom) + sizeFrom;
-            }
-
-            function placeSymbolsRandomly() {
-                for (let i = 0; i < symbolCount; i++) {
-                    let randomX = Math.random() * width;
-                    let randomY = Math.random() * height;
-                    let randomSize = getRandomSize();
-                    let symbol = text[i % text.length];
-                    ctx.save();
-                    ctx.font = randomSize + 'px ' + fontStyle;
-
-                    ctx.fillStyle = symbolColor;
-                    adjustSymbolPresence(ctx, symbol, symbolPresenceValue);
-
-                    if (neonEffect) {
-                        ctx.shadowColor = neonColor;
-                        ctx.shadowBlur = 10;
-                    } else {
-                        ctx.shadowBlur = 0;
-                    }
-
-                    if (!noRotation) {
-                        let randomAngle = Math.random() * 360;
-                        ctx.translate(randomX, randomY);
-                        ctx.rotate(randomAngle * Math.PI / 180);
-                    } else {
-                        ctx.translate(randomX, randomY);
-                    }
-                    ctx.fillText(symbol, 0, 0);
-                    ctx.restore();
+                if (y * sizeFrom > canvas.height && Math.random() > 0.975) {
+                    columns[index] = 0;
+                } else {
+                    columns[index] += speed / 10;
                 }
-            }
+            });
 
-            function placeSymbolsInGrid() {
-                let cellWidth = canvas.width / gridCols;
-                let cellHeight = canvas.height / gridRows;
-                for (let row = 0; row < gridRows; row++) {
-                    for (let col = 0; col < gridCols; col++) {
-                        let symbol = text[(row * gridCols + col) % text.length];
-                        let x = col * cellWidth + cellWidth / 2;
-                        let y = row * cellHeight + cellHeight / 2;
-                        ctx.save();
-                        let randomSize = getRandomSize();
-                        ctx.font = randomSize + 'px ' + fontStyle;
-                        ctx.fillStyle = symbolColor;
-                        adjustSymbolPresence(ctx, symbol, symbolPresenceValue);
-                        if (!noRotation) {
-                            let randomAngle = Math.random() * 360;
-                            ctx.translate(x, y);
-                            ctx.rotate(randomAngle * Math.PI / 180);
-                        } else {
-                            ctx.translate(x, y);
-                        }
-                        if (!flowEffect || Math.random() < 0.5) {
-                            ctx.fillText(symbol, 0, 0);
-                        }
-                        ctx.restore();
-                    }
-                }
-            }
-
-            if (gridEnabled) {
-                placeSymbolsInGrid();
-            } else {
-                placeSymbolsRandomly();
-            }
+            requestAnimationFrame(drawMatrixRain);
         }
 
-        function adjustSymbolPresence(ctx, symbol, presence) {
-            ctx.globalAlpha = presence / 100;
-        }
-        function downloadImage() {
-            const canvas = document.getElementById('imageCanvas');
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = 'generated_image.png';
-            link.click();
+        function startMatrixRain() {
+            fontStyle = document.getElementById('fontStyle').value;
+            symbolColor = document.getElementById('symbolColor').value;
+            sizeFrom = parseInt(document.getElementById('sizeFrom').value);
+            sizeTo = parseInt(document.getElementById('sizeTo').value);
+            speed = parseInt(document.getElementById('speed').value);
+
+            resizeCanvas();
+            drawMatrixRain();
         }
 
+        window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
 </html>
