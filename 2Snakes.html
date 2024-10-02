@@ -130,7 +130,6 @@
   <div id="score">Score: 0</div>
   
   <canvas id="game"></canvas>
-  
 <script>
   const canvas = document.getElementById('game');
   const context = canvas.getContext('2d');
@@ -307,6 +306,10 @@
     scoreElement.textContent = `Score: ${score}`;
   }
 
+  function checkCollision(snake) {
+    return snake.cells.some(cell => cell.x === snake.x && cell.y === snake.y);
+  }
+
   function loop() {
     if (++count < 1) {
       return;
@@ -361,10 +364,19 @@
       snake2.cells.pop();
     }
 
-    // Check for winning condition
-    if (snake1.maxCells >= WINNING_LENGTH) {
+    // Check for collision with itself
+    if (checkCollision(snake1)) {
+      endGame('Snake 2 (Teal) Wins!');
+    }
+    if (checkCollision(snake2)) {
       endGame('Snake 1 (Cyan) Wins!');
-    } else if (snake2.maxCells >= WINNING_LENGTH) {
+    }
+
+    // Check for collision between snakes
+    if (snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y)) {
+      endGame('Snake 1 (Cyan) Wins!');
+    }
+    if (snake2.cells.some(cell => cell.x === snake1.x && cell.y === snake1.y)) {
       endGame('Snake 2 (Teal) Wins!');
     }
 
@@ -405,5 +417,7 @@
     infoElement.style.display = 'none';
   }
 </script>
+  
+
 </body>
 </html>
