@@ -294,10 +294,8 @@
             snake2.dy = 0;
           }
           break;
-      }
-      
-      // Controls for right snake (teal)
-      switch (e.key) {
+
+        // Controls for right snake (teal)
         case 'w':
           if (snake1.dy === 0) {
             snake1.dx = 0;
@@ -324,25 +322,6 @@
           break;
       }
     });
-
-    function updateScore() {
-      scoreElement.textContent = `Score: ${score}`;
-    }
-
-    function applyPower(type) {
-      switch (type) {
-        case POWER_TYPES.SPEED_UP:
-          snakeSpeed = Math.max(1, snakeSpeed - 1);
-          break;
-        case POWER_TYPES.SPEED_DOWN:
-          snakeSpeed = Math.min(10, snakeSpeed + 1);
-          break;
-        case POWER_TYPES.SCORE_UP:
-          score += 20;
-          updateScore();
-          break;
-      }
-    }
 
     function loop() {
       if (++count < 1) {
@@ -413,19 +392,14 @@
       // Check for collision with self
       for (let i = 1; i < snake1.cells.length; i++) {
         if (snake1.cells[i].x === snake1.x && snake1.cells[i].y === snake1.y) {
-          endGame('Snake 2 (Teal) Wins!');
+          endGame();
         }
       }
 
       for (let i = 1; i < snake2.cells.length; i++) {
         if (snake2.cells[i].x === snake2.x && snake2.cells[i].y === snake2.y) {
-          endGame('Snake 1 (Cyan) Wins!');
+          endGame();
         }
-      }
-
-      // Check for collision between snakes
-      if (snake1.x === snake2.x && snake1.y === snake2.y) {
-        endGame('Collision! Snake 2 (Teal) Wins!');
       }
 
       // Draw snakes
@@ -455,13 +429,36 @@
       });
     }
 
-    function endGame(winnerMessage) {
+    function applyPower(type) {
+      switch (type) {
+        case POWER_TYPES.SPEED_UP:
+          snakeSpeed = Math.max(1, snakeSpeed - 1);
+          clearInterval(gameInterval);
+          gameInterval = setInterval(loop, snakeSpeed * 100);
+          break;
+        case POWER_TYPES.SPEED_DOWN:
+          snakeSpeed = Math.min(10, snakeSpeed + 1);
+          clearInterval(gameInterval);
+          gameInterval = setInterval(loop, snakeSpeed * 100);
+          break;
+        case POWER_TYPES.SCORE_UP:
+          score += 50;
+          updateScore();
+          break;
+      }
+    }
+
+    function updateScore() {
+      scoreElement.textContent = `Score: ${score}`;
+    }
+
+    function endGame() {
       clearInterval(gameInterval);
       clearInterval(powerIntervalId);
       isGameRunning = false;
       canvas.style.display = 'none';
       scoreElement.style.display = 'none';
-      finalScoreElement.textContent = `Final Score: ${score} - ${winnerMessage}`;
+      finalScoreElement.textContent = `Final Score: ${score}`;
       finalScoreElement.style.display = 'block';
       menu.style.display = 'flex';
     }
