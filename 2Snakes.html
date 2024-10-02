@@ -148,7 +148,6 @@
     let isGameRunning = false;
 
     let snake1, snake2, apples = [], powers = [];
-    let collisionPoint = null;
 
     const POWER_TYPES = {
       SPEED_UP: 0,
@@ -267,6 +266,7 @@
       return Math.floor(Math.random() * (max - min)) + min;
     }
 
+    document.addEventListener('keydown', (e
     document.addEventListener('keydown', (e) => {
       // Controls for left snake (cyan)
       switch (e.key) {
@@ -295,7 +295,7 @@
           }
           break;
       }
-
+      
       // Controls for right snake (teal)
       switch (e.key) {
         case 'w':
@@ -325,13 +325,34 @@
       }
     });
 
+    function updateScore() {
+      scoreElement.textContent = Score: ${score};
+    }
+
+    function applyPower(type) {
+      switch (type) {
+        case POWER_TYPES.SPEED_UP:
+          snakeSpeed = Math.max(1, snakeSpeed - 1);
+          break;
+        case POWER_TYPES.SPEED_DOWN:
+          snakeSpeed = Math.min(10, snakeSpeed + 1);
+          break;
+        case POWER_TYPES.SCORE_UP:
+          score += 20;
+          updateScore();
+          break;
+      }
+    }
+
     function loop() {
-      if (++count < 1) return;
+      if (++count < 1) {
+        return;
+      }
       count = 0;
 
       context.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Move snakes
+      // Update positions
       snake1.x += snake1.dx;
       snake1.y += snake1.dy;
       snake2.x += snake2.dx;
@@ -351,16 +372,16 @@
       // Check for apple collision
       apples.forEach((apple, index) => {
         if (snake1.x === apple.x && snake1.y === apple.y) {
-          snake1.maxCells++;
-          score++;
+          score += 10;
           updateScore();
+          snake1.maxCells++;
           apples.splice(index, 1);
           spawnApple();
         }
         if (snake2.x === apple.x && snake2.y === apple.y) {
-          snake2.maxCells++;
-          score++;
+          score += 10;
           updateScore();
+          snake2.maxCells++;
           apples.splice(index, 1);
           spawnApple();
         }
@@ -369,105 +390,86 @@
       // Check for power-up collision
       powers.forEach((power, index) => {
         if (snake1.x === power.x && snake1.y === power.y) {
-          applyPower(power.type, 1);
+          applyPower(power.type);
           powers.splice(index, 1);
         }
         if (snake2.x === power.x && snake2.y === power.y) {
-          applyPower(power.type, 2);
+          applyPower(power.type);
           powers.splice(index, 1);
         }
       });
 
       // Update snake cells
       snake1.cells.unshift({ x: snake1.x, y: snake1.y });
+      snake2.cells.unshift({ x: snake2.x, y: snake2.y });
+
       if (snake1.cells.length > snake1.maxCells) {
         snake1.cells.pop();
       }
-
-      snake2.cells.unshift({ x: snake2.x, y: snake2.y });
       if (snake2.cells.length > snake2.maxCells) {
         snake2.cells.pop();
       }
 
       // Check for collision with self and each other
-      collisionPoint = collisionWithEachOther(snake1, snake2);
-      if (collisionWithSelf(snake1) || collisionWithSelf(snake2) || collisionPoint) {
+      if (collisionWithSelf(snake1) || collisionWithSelf(snake2) || collisionWithEachOther(snake1, snake2)) {
         endGame('Game Over!');
       }
 
-      // Draw snakes
+      // Draw snakes with circular heads and pointy tails
       drawSnake(snake1);
       drawSnake(snake2);
 
       // Draw apples
       apples.forEach(apple => {
         context.fillStyle = apple.color;
-        context.fillRect(apple.x, apple.y, grid, grid);
+        context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
       });
 
       // Draw power-ups
       powers.forEach(power => {
         context.fillStyle = power.color;
-        context.fillRect(power.x, power.y, grid, grid);
+        context.fillRect(power.x, power.y, grid - 1, grid - 1);
+        context.fillStyle = 'white'; // Draw type number
+        context.font = '12px Arial';
+        context.fillText(power.type + 1, power.x + 4, power.y + 12); // Display power type
       });
-
-      // Draw collision effect if collisionPoint exists
-      if (collisionPoint) {
-        context.fillStyle = 'yellow'; // Color for collision effect
-        context.beginPath();
-        context.arc(collisionPoint.x + grid / 2, collisionPoint.y + grid / 2, grid / 2, 0, Math.PI * 2);
-        context.fill();
-        context.fillStyle = 'white'; // Optional: outline for better visibility
-        context.stroke();
-      }
-    }
-
-    function collisionWithEachOther(snake1, snake2) {
-      if (snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y)) {
-        return { x: snake2.x, y: snake2.y }; // Return collision point
-      }
-      return null; // No collision
     }
 
     function collisionWithSelf(snake) {
-      return snake.cells.slice(1).some(cell => cell.x === snake.x && cell.y === snake.y);
-    }
-
-    function applyPower(type, snakeNum) {
-      switch (type) {
-        case POWER_TYPES.SPEED_UP:
-          if (snakeNum === 1) {
-            snakeSpeed -= 2;
-          } else {
-            snakeSpeed += 2;
-          }
-          break;
-        case POWER_TYPES.SPEED_DOWN:
-          if (snakeNum === 1) {
-            snakeSpeed += 2;
-          } else {
-            snakeSpeed -= 2;
-          }
-          break;
-        case POWER_TYPES.SCORE_UP:
-          score += 5;
-          updateScore();
-          break;
+      for (let i = 1; i < snake.cells.length; i++) {
+        if (snake.cells[i].x === snake.x && snake.cells[i].y === snake.y) {
+          return true;
+        }
       }
+      return false;
     }
 
-    function updateScore() {
-      scoreElement.innerText = 'Score: ' + score;
+    function collisionWithEachOther(snake1, snake2) {
+      return snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y);
     }
 
-    function endGame(message) {
+    function drawSnake(snake) {
+      // Draw head (circular)
+      context.fillStyle = snake.color;
+      context.beginPath();
+      context.arc(snake.x + grid / 2, snake.y + grid / 2, grid / 2 - 1, 0, Math.PI * 2);
+      context.fill();
+
+      // Draw body segments
+      snake.cells.forEach((cell, index) => {
+        if (index === 0) return; // Skip the head
+        context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+      });
+    }
+
+    function endGame(winnerMessage) {
       clearInterval(gameInterval);
       clearInterval(powerIntervalId);
       isGameRunning = false;
-      finalScoreElement.innerText = message + ' Final Score: ' + score;
-      finalScoreElement.style.display = 'block';
       canvas.style.display = 'none';
       scoreElement.style.display = 'none';
+      finalScoreElement.textContent = Final Score: ${score} - ${winnerMessage};
+      finalScoreElement.style.display = 'block';
       menu.style.display = 'flex';
     }
 
