@@ -115,7 +115,7 @@
     <div id="finalScore"></div>
     <div id="info">
       <h3>Game Info</h3>
-      <p><strong>Snake Colors:</strong> Cyan (Left) and teal (Right)</p>
+      <p><strong>Snake Colors:</strong> Cyan (Left) and Teal (Right)</p>
       <p><strong>Apple Colors:</strong> Red or Orange (Collect for points)</p>
       <p><strong>Power-ups:</strong></p>
       <ul>
@@ -159,7 +159,6 @@
       canvas.width = boardSize * grid;
       canvas.height = boardSize * grid;
 
-      // Initialize snakes
       snake1 = {
         x: 0,
         y: Math.floor(boardSize / 2) * grid,
@@ -267,6 +266,7 @@
       return Math.floor(Math.random() * (max - min)) + min;
     }
 
+    document.addEventListener('keydown', (e
     document.addEventListener('keydown', (e) => {
       // Controls for left snake (cyan)
       switch (e.key) {
@@ -410,34 +410,14 @@
         snake2.cells.pop();
       }
 
-      // Check for collision with self
-      for (let i = 1; i < snake1.cells.length; i++) {
-        if (snake1.cells[i].x === snake1.x && snake1.cells[i].y === snake1.y) {
-          endGame('Snake 2 (Teal) Wins!');
-        }
+      // Check for collision with self and each other
+      if (collisionWithSelf(snake1) || collisionWithSelf(snake2) || collisionWithEachOther(snake1, snake2)) {
+        endGame('Game Over!');
       }
 
-      for (let i = 1; i < snake2.cells.length; i++) {
-        if (snake2.cells[i].x === snake2.x && snake2.cells[i].y === snake2.y) {
-          endGame('Snake 1 (Cyan) Wins!');
-        }
-      }
-
-      // Check for collision between snakes
-      if (snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y)) {
-        endGame('Collision! Snake 2 (Teal) Wins!');
-      }
-
-      // Draw snakes
-      context.fillStyle = snake1.color;
-      snake1.cells.forEach((cell) => {
-        context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-      });
-
-      context.fillStyle = snake2.color;
-      snake2.cells.forEach((cell) => {
-        context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-      });
+      // Draw snakes with circular heads and pointy tails
+      drawSnake(snake1);
+      drawSnake(snake2);
 
       // Draw apples
       apples.forEach(apple => {
@@ -452,6 +432,33 @@
         context.fillStyle = 'white'; // Draw type number
         context.font = '12px Arial';
         context.fillText(power.type + 1, power.x + 4, power.y + 12); // Display power type
+      });
+    }
+
+    function collisionWithSelf(snake) {
+      for (let i = 1; i < snake.cells.length; i++) {
+        if (snake.cells[i].x === snake.x && snake.cells[i].y === snake.y) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function collisionWithEachOther(snake1, snake2) {
+      return snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y);
+    }
+
+    function drawSnake(snake) {
+      // Draw head (circular)
+      context.fillStyle = snake.color;
+      context.beginPath();
+      context.arc(snake.x + grid / 2, snake.y + grid / 2, grid / 2 - 1, 0, Math.PI * 2);
+      context.fill();
+
+      // Draw body segments
+      snake.cells.forEach((cell, index) => {
+        if (index === 0) return; // Skip the head
+        context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
       });
     }
 
