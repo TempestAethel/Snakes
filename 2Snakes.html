@@ -7,7 +7,7 @@
     <style>
         body { display: flex; flex-direction: column; align-items: center; background-color: #333; color: white; font-family: Arial, sans-serif; }
         canvas { border: 2px solid white; display: none; }
-        #controls { margin: 20px; }
+        #controls { margin: 20px; display: flex; flex-direction: column; }
         #score { font-size: 24px; }
         #game-info { display: none; }
     </style>
@@ -17,22 +17,32 @@
     <div id="controls">
         <label for="boardSize">Board Size (10-50):</label>
         <input type="number" id="boardSize" min="10" max="50" value="20">
+        
         <label for="snakeSpeed">Snake Speed (1-10):</label>
         <input type="number" id="snakeSpeed" min="1" max="10" value="5">
+        
         <label for="numApples">Number of Apples (1-10):</label>
         <input type="number" id="numApples" min="1" max="10" value="3">
+        
         <label for="powerUpFreq">Power-up Frequency (1-100s):</label>
         <input type="number" id="powerUpFreq" min="1" max="100" value="10">
+        
         <button id="startBtn">Start Game</button>
         <button id="infoBtn">Game Info</button>
     </div>
+    
     <canvas id="gameCanvas" width="400" height="400"></canvas>
     <div id="score">Score: 0</div>
     <div id="game-info">
         <h2>Game Rules</h2>
         <p>Player 1 (Cyan): W, A, S, D | Player 2 (Teal): Arrow Keys</p>
         <p>Eat apples to grow longer and earn points. Avoid colliding with yourself or the other player!</p>
-        <p>Power-ups appear randomly. Collect them for speed or score bonuses.</p>
+        <p>Power-ups appear randomly:</p>
+        <ul>
+            <li>1 - Speed Up</li>
+            <li>2 - Speed Down</li>
+            <li>3 - Score Up</li>
+        </ul>
         <button id="closeInfo">Close</button>
     </div>
 
@@ -45,10 +55,10 @@
         const gameInfo = document.getElementById('game-info');
         const closeInfo = document.getElementById('closeInfo');
 
-        let boardSize = 20;
-        let snakeSpeed = 5;
-        let numApples = 3;
-        let powerUpFreq = 10;
+        let boardSize = parseInt(localStorage.getItem('boardSize')) || 20;
+        let snakeSpeed = parseInt(localStorage.getItem('snakeSpeed')) || 5;
+        let numApples = parseInt(localStorage.getItem('numApples')) || 3;
+        let powerUpFreq = (parseInt(localStorage.getItem('powerUpFreq')) || 10) * 1000;
         let snakes, apples, powerUps, gameInterval, gameRunning, powerUpTimer;
         let score1, score2;
 
@@ -57,6 +67,13 @@
             snakeSpeed = parseInt(document.getElementById('snakeSpeed').value);
             numApples = parseInt(document.getElementById('numApples').value);
             powerUpFreq = parseInt(document.getElementById('powerUpFreq').value) * 1000;
+
+            // Store settings in localStorage
+            localStorage.setItem('boardSize', boardSize);
+            localStorage.setItem('snakeSpeed', snakeSpeed);
+            localStorage.setItem('numApples', numApples);
+            localStorage.setItem('powerUpFreq', powerUpFreq / 1000); // Store in seconds
+
             snakes = [
                 { body: [{ x: 5, y: 5 }], direction: { x: 0, y: 0 }, color: 'cyan' },
                 { body: [{ x: 15, y: 15 }], direction: { x: 0, y: 0 }, color: 'teal' }
@@ -70,6 +87,7 @@
             createApples();
             draw();
             canvas.style.display = 'block'; // Show canvas
+            document.getElementById('controls').style.display = 'none'; // Hide menu
             gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
             powerUpTimer = setInterval(spawnPowerUp, powerUpFreq);
         }
@@ -86,10 +104,12 @@
 
         function spawnPowerUp() {
             const types = ['Speed Up', 'Speed Down', 'Score Up'];
+            const values = [1, 2, 3]; // Assign values for each power-up
             powerUps.push({
                 x: Math.floor(Math.random() * boardSize),
                 y: Math.floor(Math.random() * boardSize),
-                type: types[Math.floor(Math.random() * types.length)]
+                type: types[Math.floor(Math.random() * types.length)],
+                value: values[Math.floor(Math.random() * values.length)] // Randomly assign a value
             });
         }
 
@@ -133,8 +153,8 @@
                 ctx.fillRect(powerUp.x * (canvas.width / boardSize), powerUp.y * (canvas.height / boardSize), 
                              (canvas.width / boardSize), (canvas.height / boardSize));
                 ctx.fillStyle = 'black';
-                ctx.fillText(powerUp.type, powerUp.x * (canvas.width / boardSize) + 5, 
-                             powerUp.y * (canvas.height / boardSize) + 15);
+                ctx.fillText(powerUp.value, powerUp.x * (canvas.width / boardSize) + 5, 
+                             powerUp.y * (canvas.height / boardSize) + 15); // Show value
             });
         }
 
@@ -164,7 +184,7 @@
             snakes.forEach((snake, index) => {
                 // Check self-collision
                 if (snake.body.slice(1).some(part => part.x === snake.body[0].x && part.y === snake.body[0].y)) {
-                    endGame();
+                    endGame(index);
                 }
 
                 // Check apple collision
@@ -193,11 +213,11 @@
         }
 
         function handlePowerUp(snake, powerUp) {
-            if (powerUp.type === 'Speed Up') {
+            if (powerUp.value === 1) { // Speed Up
                 snakeSpeed = Math.min(10, snakeSpeed + 1);
-            } else if (powerUp.type === 'Speed Down') {
+            } else if (powerUp.value === 2) { // Speed Down
                 snakeSpeed = Math.max(1, snakeSpeed - 1);
-            } else if (powerUp.type === 'Score Up') {
+            } else if (powerUp.value === 3) { // Score Up
                 score1 += 20; // Increment score
                 scoreDisplay.innerText = `Score: ${score1}`;
             }
@@ -205,11 +225,12 @@
             gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
         }
 
-        function endGame() {
+        function endGame(loserIndex = null) {
             clearInterval(gameInterval);
             clearInterval(powerUpTimer);
-            alert(`Game Over! Final Score: ${score1}`);
-            document.location.reload(); // Reload the game
+            const winnerMessage = loserIndex === 0 ? 'Player 2 Wins!' : 'Player 1 Wins!';
+            alert(`Game Over! Final Score: ${score1}. ${winnerMessage}`);
+            document.location.reload(); // Reload the game with the same settings
         }
 
         function controlSnake(event) {
