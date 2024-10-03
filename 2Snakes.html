@@ -172,7 +172,6 @@
         }
 
         function createApples() {
-            apples = [];
             while (apples.length < numApples) {
                 const newApple = {
                     x: Math.floor(Math.random() * boardSize),
@@ -183,6 +182,17 @@
                     apples.push(newApple);
                 }
             }
+        }
+
+        function spawnNewApple() {
+            let newApple;
+            do {
+                newApple = {
+                    x: Math.floor(Math.random() * boardSize),
+                    y: Math.floor(Math.random() * boardSize)
+                };
+            } while (isOccupied(newApple)); // Ensure the new apple is on an empty tile
+            apples.push(newApple);
         }
 
         function isOccupied(position) {
@@ -281,7 +291,7 @@
                     if (snake.body[0].x === apple.x && snake.body[0].y === apple.y) {
                         snake.body.push({ ...snake.body[snake.body.length - 1] });
                         apples.splice(appleIndex, 1);
-                        createApples(); // Create new apples on empty tiles
+                        spawnNewApple(); // Create a new apple in an empty tile
                         if (index === 0) score1 += 10; // Increment score for Player 1
                         else score2 += 10; // Increment score for Player 2
                         scoreDisplay.innerText = `Score: ${score1}`;
