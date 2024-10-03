@@ -285,13 +285,31 @@
                 snake1.dx = -grid;
                 snake1.dy = 0;
             }
-            if (keys.s && snake1.dx === 0) {
+            if (keys.s && snake1.dy === 0) {
                 snake1.dx = 0;
                 snake1.dy = grid;
             }
-            if (keys.d && snake1.dy === 0) {
+            if (keys.d && snake1.dx === 0) {
                 snake1.dx = grid;
                 snake1.dy = 0;
+            }
+
+            // Prevent reversal for left snake
+            if (snake1.dx === grid && keys.a) {
+                snake1.dx = 0;
+                snake1.dy = 0; // Ignore this input
+            }
+            if (snake1.dx === -grid && keys.d) {
+                snake1.dx = 0;
+                snake1.dy = 0; // Ignore this input
+            }
+            if (snake1.dy === grid && keys.w) {
+                snake1.dx = 0;
+                snake1.dy = 0; // Ignore this input
+            }
+            if (snake1.dy === -grid && keys.s) {
+                snake1.dx = 0;
+                snake1.dy = 0; // Ignore this input
             }
 
             // Controls for right snake (teal)
@@ -299,7 +317,7 @@
                 snake2.dx = 0;
                 snake2.dy = -grid;
             }
-            if (keys.ArrowDown && snake2.dx === 0) {
+            if (keys.ArrowDown && snake2.dy === 0) {
                 snake2.dx = 0;
                 snake2.dy = grid;
             }
@@ -307,9 +325,27 @@
                 snake2.dx = -grid;
                 snake2.dy = 0;
             }
-            if (keys.ArrowRight && snake2.dy === 0) {
+            if (keys.ArrowRight && snake2.dx === 0) {
                 snake2.dx = grid;
                 snake2.dy = 0;
+            }
+
+            // Prevent reversal for right snake
+            if (snake2.dx === grid && keys.ArrowLeft) {
+                snake2.dx = 0;
+                snake2.dy = 0; // Ignore this input
+            }
+            if (snake2.dx === -grid && keys.ArrowRight) {
+                snake2.dx = 0;
+                snake2.dy = 0; // Ignore this input
+            }
+            if (snake2.dy === grid && keys.ArrowUp) {
+                snake2.dx = 0;
+                snake2.dy = 0; // Ignore this input
+            }
+            if (snake2.dy === -grid && keys.ArrowDown) {
+                snake2.dx = 0;
+                snake2.dy = 0; // Ignore this input
             }
         }
 
