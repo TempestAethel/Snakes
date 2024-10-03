@@ -13,16 +13,18 @@
             justify-content: center;
             background: #1a1a1a;
             color: white;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
-
+        body.light-theme {
+            background: #f0f0f0;
+            color: #000;
+        }
         canvas {
-            border: 2px solid white;
+            border: 1px solid white;
             background-color: #4d4d4d;
             display: none;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-
         #menu {
             position: absolute;
             display: flex;
@@ -34,19 +36,15 @@
             border-radius: 10px;
             color: white;
             z-index: 1;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
-
         #menu label {
             margin-top: 15px;
         }
-
-        #menu input[type="number"], #menu input[type="checkbox"] {
+        #menu input[type="number"] {
             margin-left: 10px;
             padding: 5px;
             width: 60px;
         }
-
         button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -56,13 +54,10 @@
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            transition: background-color 0.3s;
         }
-
         button:hover {
             background-color: gray;
         }
-
         #score {
             position: absolute;
             top: 20px;
@@ -71,13 +66,11 @@
             color: white;
             display: none;
         }
-
         #finalScore {
             margin-top: 20px;
             font-size: 18px;
             color: yellow;
         }
-
         #info {
             display: none;
             background-color: rgba(0, 0, 0, 0.85);
@@ -86,55 +79,46 @@
             margin-top: 15px;
             color: white;
         }
-
-        #themeToggle {
+        .theme-toggle {
             position: absolute;
             top: 20px;
             left: 20px;
             cursor: pointer;
-            padding: 5px 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        #themeToggle:hover {
-            background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
 <body>
 
-    <button id="themeToggle" onclick="toggleTheme()">Toggle Theme</button>
+    <div class="theme-toggle">
+        <button onclick="toggleTheme()">Toggle Theme</button>
+    </div>
 
     <div id="menu">
         <h2>Snake Game</h2>
-        
+
         <label for="boardSize">
             Board Size (10 - 50):
             <input type="number" id="boardSize" value="25" min="10" max="50">
         </label>
-        
+
         <label for="speed">
             Snake Speed (1 - 10):
             <input type="number" id="speed" value="5" min="1" max="10">
         </label>
-        
+
         <label>
             <input type="checkbox" id="multipleApplesToggle" onclick="document.getElementById('appleCount').disabled = !this.checked;"> Enable Multiple Apples
             <input type="number" id="appleCount" value="1" min="1" max="10" disabled>
         </label>
-        
+
         <label>
             <input type="checkbox" id="powerToggle" onclick="document.getElementById('powerInterval').disabled = !this.checked;"> Enable Power-ups
             <input type="number" id="powerInterval" value="15" min="1" max="100" disabled> (Spawn every X seconds)
         </label>
-        
+
         <button onclick="startGame()">Start Game</button>
         <button onclick="showInfo()">Info</button>
-        
+
         <div id="finalScore"></div>
         <div id="info">
             <h3>Game Info</h3>
@@ -142,18 +126,17 @@
             <p><strong>Apple Colors:</strong> Red or Orange (Collect for points)</p>
             <p><strong>Power-ups:</strong></p>
             <ul>
-                <li><strong>1:</strong> Speed Up (Magenta)</li>
-                <li><strong>2:</strong> Speed Down (Magenta)</li>
-                <li><strong>3:</strong> Score Up (Magenta)</li>
+                <li>Speed Up: Magenta (2)</li>
+                <li>Speed Down: Magenta (2)</li>
+                <li>Score Up: Magenta (3)</li>
             </ul>
             <button onclick="hideInfo()">Close</button>
         </div>
     </div>
-    
+
     <div id="score">Score: 0</div>
-    
     <canvas id="game"></canvas>
-    
+
     <script>
         const canvas = document.getElementById('game');
         const context = canvas.getContext('2d');
@@ -271,7 +254,7 @@
 
         function isOccupied(x, y) {
             if (snake1.cells.some(cell => cell.x === x && cell.y === y) || 
-                snake.cells.some(cell => cell.x === x && cell.y === y)) return true;
+                snake2.cells.some(cell => cell.x === x && cell.y === y)) return true;
             if (apples.some(apple => apple.x === x && apple.y === y)) return true;
             return false;
         }
@@ -497,14 +480,7 @@
         }
 
         function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-            if (document.body.classList.contains('dark-theme')) {
-                document.body.style.backgroundColor = '#333';
-                document.body.style.color = '#fff';
-            } else {
-                document.body.style.backgroundColor = '#f0f0f0';
-                document.body.style.color = '#000';
-            }
+            document.body.classList.toggle('light-theme');
         }
     </script>
 </body>
