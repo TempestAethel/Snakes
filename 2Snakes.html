@@ -309,7 +309,9 @@
 
             // Check snake collision
             if (snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y) {
-                endGame();
+                // If they collide, we will end the game
+                const loserIndex = snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y ? null : -1;
+                endGame(loserIndex);
             }
         }
 
@@ -327,10 +329,11 @@
             gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
         }
 
-        function endGame(loserIndex = null) {
+        function endGame(loserIndex) {
             clearInterval(gameInterval);
             clearInterval(powerUpTimer);
-            const winnerMessage = loserIndex === 0 ? 'Player 2 Wins!' : 'Player 1 Wins!';
+            const winnerIndex = loserIndex === 0 ? 1 : 0;
+            const winnerMessage = `Player ${winnerIndex + 1} Wins!`;
             alert(`Game Over! Final Score: Player 1 - ${score1}, Player 2 - ${score2}. ${winnerMessage}`);
             document.location.reload(); // Reload the game with the same settings
         }
