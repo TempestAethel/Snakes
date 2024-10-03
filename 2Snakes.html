@@ -14,6 +14,11 @@
             background: #1a1a1a; /* Dark mode default */
             color: white;
             font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.light-theme {
+            background: #f0f0f0;
+            color: #000;
         }
         canvas {
             border: 1px solid white;
@@ -74,9 +79,19 @@
             margin-top: 15px;
             color: white;
         }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
+    <div class="theme-toggle">
+        <button onclick="toggleTheme()">Toggle Theme</button>
+    </div>
 
     <div id="menu">
         <h2>Snake Game</h2>
@@ -253,6 +268,10 @@
             return Math.floor(Math.random() * 3); // 0, 1, or 2
         }
 
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+
         document.addEventListener('keydown', (e) => {
             // Controls for left snake (cyan)
             switch (e.key) {
@@ -281,7 +300,7 @@
                     }
                     break;
             }
-
+            
             // Controls for right snake (teal)
             switch (e.key) {
                 case 'ArrowUp':
@@ -331,7 +350,7 @@
         }
 
         function loop() {
-            if (++count < snakeSpeed) {
+            if (++count < 1) {
                 return;
             }
             count = 0;
@@ -345,10 +364,15 @@
             snake2.y += snake2.dy;
 
             // Wrap snakes around the canvas
-            snake1.x = (snake1.x + canvas.width) % canvas.width;
-            snake1.y = (snake1.y + canvas.height) % canvas.height;
-            snake2.x = (snake2.x + canvas.width) % canvas.width;
-            snake2.y = (snake2.y + canvas.height) % canvas.height;
+            if (snake1.x < 0) snake1.x = canvas.width - grid;
+            else if (snake1.x >= canvas.width) snake1.x = 0;
+            if (snake1.y < 0) snake1.y = canvas.height - grid;
+            else if (snake1.y >= canvas.height) snake1.y = 0;
+
+            if (snake2.x < 0) snake2.x = canvas.width - grid;
+            else if (snake2.x >= canvas.width) snake2.x = 0;
+            if (snake2.y < 0) snake2.y = canvas.height - grid;
+            else if (snake2.y >= canvas.height) snake2.y = 0;
 
             // Check for apple collision
             apples.forEach((apple, index) => {
@@ -453,6 +477,10 @@
 
         function hideInfo() {
             infoElement.style.display = 'none';
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
         }
     </script>
 </body>
