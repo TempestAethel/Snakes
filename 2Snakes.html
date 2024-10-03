@@ -126,7 +126,7 @@
             <p><strong>Apple Colors:</strong> Red or Orange (Collect for points)</p>
             <p><strong>Power-ups:</strong></p>
             <ul>
-                <li>Speed Up: Magenta (2)</li>
+                <li>Speed Up: Magenta (1)</li>
                 <li>Speed Down: Magenta (2)</li>
                 <li>Score Up: Magenta (3)</li>
             </ul>
@@ -281,13 +281,13 @@
                         snake1.dy = -grid;
                     }
                     break;
-                case 's':
+                case 'a':
                     if (snake1.dy === 0) {
                         snake1.dx = 0;
                         snake1.dy = grid;
                     }
                     break;
-                case 'a':
+                case 's':
                     if (snake1.dx === 0) {
                         snake1.dx = -grid;
                         snake1.dy = 0;
@@ -430,7 +430,7 @@
 
             // Check for collision between snakes
             if (snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y)) {
-                endGame('Collision! Snake 2 (Teal) Wins!');
+                endGame('Collision! Tie !');
             }
 
             // Draw snakes
