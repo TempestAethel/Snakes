@@ -6,7 +6,7 @@
     <title>Snake Game</title>
     <style>
         body { display: flex; flex-direction: column; align-items: center; background-color: #333; color: white; font-family: Arial, sans-serif; }
-        canvas { border: 2px solid white; }
+        canvas { border: 2px solid white; display: none; }
         #controls { margin: 20px; }
         #score { font-size: 24px; }
         #game-info { display: none; }
@@ -69,6 +69,7 @@
             scoreDisplay.innerText = 'Score: 0';
             createApples();
             draw();
+            canvas.style.display = 'block'; // Show canvas
             gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
             powerUpTimer = setInterval(spawnPowerUp, powerUpFreq);
         }
