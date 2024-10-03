@@ -3,494 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplayer Snake Game</title>
+    <title>Snake Game</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-        canvas {
-            border: 1px solid white;
-            background-color: #4d4d4d;
-            display: none;
-        }
-        #menu {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.85);
-            padding: 30px;
-            border: 2px solid white;
-            border-radius: 10px;
-            color: white;
-            z-index: 1;
-        }
-        #menu label {
-            margin-top: 15px;
-        }
-        #menu input[type="number"] {
-            margin-left: 10px;
-            padding: 5px;
-            width: 60px;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: white;
-            color: black;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: gray;
-        }
-        #score {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: white;
-            display: none;
-        }
-        #finalScore {
-            margin-top: 20px;
-            font-size: 18px;
-            color: yellow;
-        }
-        #info {
-            display: none;
-            background-color: rgba(0, 0, 0, 0.85);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 15px;
-            color: white;
-        }
+        body { display: flex; flex-direction: column; align-items: center; background-color: #333; color: white; font-family: Arial, sans-serif; }
+        canvas { border: 2px solid white; }
+        #controls { margin: 20px; }
+        #score { font-size: 24px; }
+        #game-info { display: none; }
     </style>
 </head>
 <body>
-
-    <div id="menu">
-        <h2>Snake Game</h2>
-        <label for="boardSize">
-            Board Size (10 - 50):
-            <input type="number" id="boardSize" value="25" min="10" max="50">
-        </label>
-        <label for="speed">
-            Snake Speed (1 - 10):
-            <input type="number" id="speed" value="5" min="1" max="10">
-        </label>
-        <label>
-            <input type="checkbox" id="multipleApplesToggle" onclick="document.getElementById('appleCount').disabled = !this.checked;"> Enable Multiple Apples
-            <input type="number" id="appleCount" value="1" min="1" max="10" disabled>
-        </label>
-        <label>
-            <input type="checkbox" id="powerToggle" onclick="document.getElementById('powerInterval').disabled = !this.checked;"> Enable Power-ups
-            <input type="number" id="powerInterval" value="15" min="1" max="100" disabled> (Spawn every X seconds)
-        </label>
-        <button onclick="startGame()">Start Game</button>
-        <button onclick="showInfo()">Info</button>
-        <div id="finalScore"></div>
-        <div id="info">
-            <h3>Game Info</h3>
-            <p><strong>Snake Colors:</strong> Cyan (Left) and Teal (Right)</p>
-            <p><strong>Apple Colors:</strong> Red or Orange (Collect for points)</p>
-            <p><strong>Power-ups:</strong></p>
-            <ul>
-                <li>Speed Up: Magenta (1)</li>
-                <li>Speed Down: Magenta (2)</li>
-                <li>Score Up: Magenta (3)</li>
-            </ul>
-            <button onclick="hideInfo()">Close</button>
-        </div>
+    <h1>Snake Game</h1>
+    <div id="controls">
+        <label for="boardSize">Board Size (10-50):</label>
+        <input type="number" id="boardSize" min="10" max="50" value="20">
+        <label for="snakeSpeed">Snake Speed (1-10):</label>
+        <input type="number" id="snakeSpeed" min="1" max="10" value="5">
+        <label for="numApples">Number of Apples (1-10):</label>
+        <input type="number" id="numApples" min="1" max="10" value="3">
+        <label for="powerUpFreq">Power-up Frequency (1-100s):</label>
+        <input type="number" id="powerUpFreq" min="1" max="100" value="10">
+        <button id="startBtn">Start Game</button>
+        <button id="infoBtn">Game Info</button>
+    </div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="score">Score: 0</div>
+    <div id="game-info">
+        <h2>Game Rules</h2>
+        <p>Player 1 (Cyan): W, A, S, D | Player 2 (Teal): Arrow Keys</p>
+        <p>Eat apples to grow longer and earn points. Avoid colliding with yourself or the other player!</p>
+        <p>Power-ups appear randomly. Collect them for speed or score bonuses.</p>
+        <button id="closeInfo">Close</button>
     </div>
 
-    <div id="score">Score: 0</div>
-    <canvas id="game"></canvas>
-
     <script>
-        const canvas = document.getElementById('game');
-        const context = canvas.getContext('2d');
-        const menu = document.getElementById('menu');
-        const scoreElement = document.getElementById('score');
-        const finalScoreElement = document.getElementById('finalScore');
-        const infoElement = document.getElementById('info');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const startBtn = document.getElementById('startBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const gameInfo = document.getElementById('game-info');
+        const closeInfo = document.getElementById('closeInfo');
 
-        let grid = 16;
+        let boardSize = 20;
         let snakeSpeed = 5;
-        let score = 0;
-        let gameInterval;
-        let powerIntervalId;
-        let isGameRunning = false;
+        let numApples = 3;
+        let powerUpFreq = 10;
+        let snakes, apples, powerUps, gameInterval, gameRunning, powerUpTimer;
+        let score1, score2;
 
-        let snake1, snake2, apples = [], powers = [];
-
-        const POWER_TYPES = {
-            SPEED_UP: 0,
-            SPEED_DOWN: 1,
-            SCORE_UP: 2
-        };
-
-        function initGame(boardSize, appleCount) {
-            canvas.width = boardSize * grid;
-            canvas.height = boardSize * grid;
-
-            snake1 = {
-                x: 0,
-                y: Math.floor(boardSize / 2) * grid,
-                dx: grid,
-                dy: 0,
-                cells: [],
-                maxCells: 4,
-                color: 'cyan'
-            };
-
-            snake2 = {
-                x: (boardSize - 1) * grid,
-                y: Math.floor(boardSize / 2) * grid,
-                dx: -grid,
-                dy: 0,
-                cells: [],
-                maxCells: 4,
-                color: 'teal'
-            };
-
+        function initGame() {
+            boardSize = parseInt(document.getElementById('boardSize').value);
+            snakeSpeed = parseInt(document.getElementById('snakeSpeed').value);
+            numApples = parseInt(document.getElementById('numApples').value);
+            powerUpFreq = parseInt(document.getElementById('powerUpFreq').value) * 1000;
+            snakes = [
+                { body: [{ x: 5, y: 5 }], direction: { x: 0, y: 0 }, color: 'cyan' },
+                { body: [{ x: 15, y: 15 }], direction: { x: 0, y: 0 }, color: 'teal' }
+            ];
             apples = [];
-            for (let i = 0; i < appleCount; i++) {
-                spawnApple();
-            }
-
-            powers = [];
-            score = 0;
-            updateScore();
+            powerUps = [];
+            score1 = 0;
+            score2 = 0;
+            gameRunning = true;
+            scoreDisplay.innerText = 'Score: 0';
+            createApples();
+            draw();
+            gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
+            powerUpTimer = setInterval(spawnPowerUp, powerUpFreq);
         }
 
-        function startGame() {
-            if (isGameRunning) return;
-
-            const boardSize = parseInt(document.getElementById('boardSize').value);
-            const speedInput = parseInt(document.getElementById('speed').value);
-            const multipleApplesToggle = document.getElementById('multipleApplesToggle').checked;
-            const appleCount = multipleApplesToggle ? parseInt(document.getElementById('appleCount').value) : 1;
-            const powerToggle = document.getElementById('powerToggle').checked;
-            const powerInterval = parseInt(document.getElementById('powerInterval').value) * 1000;
-
-            snakeSpeed = 11 - speedInput;
-            grid = Math.floor(400 / boardSize);
-            if (400 % boardSize !== 0) {
-                alert('Board size must evenly divide 400 for proper grid alignment.');
-                return;
-            }
-
-            initGame(boardSize, appleCount);
-            menu.style.display = 'none';
-            canvas.style.display = 'block';
-            scoreElement.style.display = 'block';
-
-            gameInterval = setInterval(loop, snakeSpeed * 100);
-
-            if (powerToggle) {
-                powerIntervalId = setInterval(spawnPower, powerInterval);
-            }
-
-            isGameRunning = true;
-        }
-
-        function spawnApple() {
-            let newApple;
-            do {
-                newApple = {
-                    x: getRandomInt(0, canvas.width / grid) * grid,
-                    y: getRandomInt(0, canvas.height / grid) * grid,
-                    color: getRandomAppleColor()
-                };
-            } while (isOccupied(newApple.x, newApple.y));
-            apples.push(newApple);
-        }
-
-        function spawnPower() {
-            let newPower;
-            const type = getRandomPowerType();
-            do {
-                newPower = {
-                    x: getRandomInt(0, canvas.width / grid) * grid,
-                    y: getRandomInt(0, canvas.height / grid) * grid,
-                    color: 'magenta',
-                    type: type
-                };
-            } while (isOccupied(newPower.x, newPower.y));
-            powers.push(newPower);
-        }
-
-        function isOccupied(x, y) {
-            return (
-                snake1.cells.some(cell => cell.x === x && cell.y === y) ||
-                snake2.cells.some(cell => cell.x === x && cell.y === y) ||
-                apples.some(apple => apple.x === x && apple.y === y)
-            );
-        }
-
-        function getRandomAppleColor() {
-            const appleColors = ['red', 'orange'];
-            return appleColors[Math.floor(Math.random() * appleColors.length)];
-        }
-
-        function getRandomPowerType() {
-            return Math.floor(Math.random() * 3);
-        }
-
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min)) + min;
-        }
-
-        const keys = {
-            w: false,
-            a: false,
-            s: false,
-            d: false,
-            ArrowUp: false,
-            ArrowDown: false,
-            ArrowLeft: false,
-            ArrowRight: false
-        };
-
-        document.addEventListener('keydown', (e) => {
-            if (keys[e.key] !== undefined) {
-                keys[e.key] = true;
-                handleInput(); // Handle input immediately on key press
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (keys[e.key] !== undefined) {
-                keys[e.key] = false;
-            }
-        });
-
-        function handleInput() {
-            // Controls for left snake (cyan)
-            if (keys.w && snake1.dy === 0) {
-                snake1.dx = 0;
-                snake1.dy = -grid;
-            }
-            if (keys.a && snake1.dy === 0) {
-                snake1.dx = -grid;
-                snake1.dy = 0;
-            }
-            if (keys.s && snake1.dy === 0) {
-                snake1.dx = 0;
-                snake1.dy = grid;
-            }
-            if (keys.d && snake1.dx === 0) {
-                snake1.dx = grid;
-                snake1.dy = 0;
-            }
-
-            // Prevent reversal for left snake
-            if (snake1.dx === grid && keys.a) {
-                snake1.dx = 0;
-                snake1.dy = 0; // Ignore this input
-            }
-            if (snake1.dx === -grid && keys.d) {
-                snake1.dx = 0;
-                snake1.dy = 0; // Ignore this input
-            }
-            if (snake1.dy === grid && keys.w) {
-                snake1.dx = 0;
-                snake1.dy = 0; // Ignore this input
-            }
-            if (snake1.dy === -grid && keys.s) {
-                snake1.dx = 0;
-                snake1.dy = 0; // Ignore this input
-            }
-
-            // Controls for right snake (teal)
-            if (keys.ArrowUp && snake2.dy === 0) {
-                snake2.dx = 0;
-                snake2.dy = -grid;
-            }
-            if (keys.ArrowDown && snake2.dy === 0) {
-                snake2.dx = 0;
-                snake2.dy = grid;
-            }
-            if (keys.ArrowLeft && snake2.dy === 0) {
-                snake2.dx = -grid;
-                snake2.dy = 0;
-            }
-            if (keys.ArrowRight && snake2.dx === 0) {
-                snake2.dx = grid;
-                snake2.dy = 0;
-            }
-
-            // Prevent reversal for right snake
-            if (snake2.dx === grid && keys.ArrowLeft) {
-                snake2.dx = 0;
-                snake2.dy = 0; // Ignore this input
-            }
-            if (snake2.dx === -grid && keys.ArrowRight) {
-                snake2.dx = 0;
-                snake2.dy = 0; // Ignore this input
-            }
-            if (snake2.dy === grid && keys.ArrowUp) {
-                snake2.dx = 0;
-                snake2.dy = 0; // Ignore this input
-            }
-            if (snake2.dy === -grid && keys.ArrowDown) {
-                snake2.dx = 0;
-                snake2.dy = 0; // Ignore this input
+        function createApples() {
+            apples = [];
+            for (let i = 0; i < numApples; i++) {
+                apples.push({
+                    x: Math.floor(Math.random() * boardSize),
+                    y: Math.floor(Math.random() * boardSize)
+                });
             }
         }
 
-        function updateScore() {
-            scoreElement.textContent = `Score: ${score}`;
-        }
-
-        function applyPower(type) {
-            switch (type) {
-                case POWER_TYPES.SPEED_UP:
-                    snakeSpeed = Math.max(1, snakeSpeed - 1);
-                    clearInterval(gameInterval);
-                    gameInterval = setInterval(loop, snakeSpeed * 100);
-                    break;
-                case POWER_TYPES.SPEED_DOWN:
-                    snakeSpeed = Math.min(10, snakeSpeed + 1);
-                    clearInterval(gameInterval);
-                    gameInterval = setInterval(loop, snakeSpeed * 100);
-                    break;
-                case POWER_TYPES.SCORE_UP:
-                    score += 20;
-                    updateScore();
-                    break;
-            }
-        }
-
-        function loop() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Update positions based on current direction
-            snake1.x += snake1.dx;
-            snake1.y += snake1.dy;
-            snake2.x += snake2.dx;
-            snake2.y += snake2.dy;
-
-            // Wrap snakes around the canvas
-            snake1.x = (snake1.x + canvas.width) % canvas.width;
-            snake1.y = (snake1.y + canvas.height) % canvas.height;
-            snake2.x = (snake2.x + canvas.width) % canvas.width;
-            snake2.y = (snake2.y + canvas.height) % canvas.height;
-
-            // Check for apple collision
-            apples.forEach((apple, index) => {
-                if (snake1.x === apple.x && snake1.y === apple.y) {
-                    score += 10;
-                    updateScore();
-                    snake1.maxCells++;
-                    apples.splice(index, 1);
-                    spawnApple();
-                }
-                if (snake2.x === apple.x && snake2.y === apple.y) {
-                    score += 10;
-                    updateScore();
-                    snake2.maxCells++;
-                    apples.splice(index, 1);
-                    spawnApple();
-                }
+        function spawnPowerUp() {
+            const types = ['Speed Up', 'Speed Down', 'Score Up'];
+            powerUps.push({
+                x: Math.floor(Math.random() * boardSize),
+                y: Math.floor(Math.random() * boardSize),
+                type: types[Math.floor(Math.random() * types.length)]
             });
+        }
 
-            // Check for power-up collision
-            powers.forEach((power, index) => {
-                if (snake1.x === power.x && snake1.y === power.y) {
-                    applyPower(power.type);
-                    powers.splice(index, 1);
-                }
-                if (snake2.x === power.x && snake2.y === power.y) {
-                    applyPower(power.type);
-                    powers.splice(index, 1);
-                }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBoard();
+            drawSnakes();
+            drawApples();
+            drawPowerUps();
+        }
+
+        function drawBoard() {
+            for (let i = 0; i < boardSize; i++) {
+                ctx.strokeStyle = 'grey';
+                ctx.strokeRect((i * canvas.width) / boardSize, 0, canvas.width / boardSize, canvas.height);
+                ctx.strokeRect(0, (i * canvas.height) / boardSize, canvas.width, canvas.height / boardSize);
+            }
+        }
+
+        function drawSnakes() {
+            snakes.forEach(snake => {
+                ctx.fillStyle = snake.color;
+                snake.body.forEach(part => {
+                    ctx.fillRect(part.x * (canvas.width / boardSize), part.y * (canvas.height / boardSize), 
+                                 (canvas.width / boardSize), (canvas.height / boardSize));
+                });
             });
+        }
 
-            // Update snake cells
-            snake1.cells.unshift({ x: snake1.x, y: snake1.y });
-            snake2.cells.unshift({ x: snake2.x, y: snake2.y });
-
-            if (snake1.cells.length > snake1.maxCells) {
-                snake1.cells.pop();
-            }
-            if (snake2.cells.length > snake2.maxCells) {
-                snake2.cells.pop();
-            }
-
-            // Check for collision with self
-            for (let i = 1; i < snake1.cells.length; i++) {
-                if (snake1.cells[i].x === snake1.x && snake1.cells[i].y === snake1.y) {
-                    endGame('Snake 2 (Teal) Wins!');
-                }
-            }
-
-            for (let i = 1; i < snake2.cells.length; i++) {
-                if (snake2.cells[i].x === snake2.x && snake2.cells[i].y === snake2.y) {
-                    endGame('Snake 1 (Cyan) Wins!');
-                }
-            }
-
-            // Check for collision between snakes
-            if (snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y)) {
-                endGame('Collision! Tie!');
-            }
-
-            // Draw snakes
-            context.fillStyle = snake1.color;
-            snake1.cells.forEach((cell) => {
-                context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-            });
-
-            context.fillStyle = snake2.color;
-            snake2.cells.forEach((cell) => {
-                context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
-            });
-
-            // Draw apples
+        function drawApples() {
+            ctx.fillStyle = 'red';
             apples.forEach(apple => {
-                context.fillStyle = apple.color;
-                context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
-            });
-
-            // Draw power-ups
-            powers.forEach(power => {
-                context.fillStyle = power.color;
-                context.fillRect(power.x, power.y, grid - 1, grid - 1);
-                context.fillStyle = 'white'; // Draw type number
-                context.font = '12px Arial';
-                context.fillText(power.type + 1, power.x + 4, power.y + 12); // Display power type
+                ctx.fillRect(apple.x * (canvas.width / boardSize), apple.y * (canvas.height / boardSize), 
+                             (canvas.width / boardSize), (canvas.height / boardSize));
             });
         }
 
-        function endGame(winnerMessage) {
+        function drawPowerUps() {
+            powerUps.forEach(powerUp => {
+                ctx.fillStyle = 'yellow';
+                ctx.fillRect(powerUp.x * (canvas.width / boardSize), powerUp.y * (canvas.height / boardSize), 
+                             (canvas.width / boardSize), (canvas.height / boardSize));
+                ctx.fillStyle = 'black';
+                ctx.fillText(powerUp.type, powerUp.x * (canvas.width / boardSize) + 5, 
+                             powerUp.y * (canvas.height / boardSize) + 15);
+            });
+        }
+
+        function gameLoop() {
+            moveSnakes();
+            checkCollisions();
+            draw();
+        }
+
+        function moveSnakes() {
+            snakes.forEach(snake => {
+                const head = { x: snake.body[0].x + snake.direction.x, y: snake.body[0].y + snake.direction.y };
+                wrapAround(head);
+                snake.body.unshift(head);
+                snake.body.pop();
+            });
+        }
+
+        function wrapAround(head) {
+            if (head.x >= boardSize) head.x = 0;
+            if (head.x < 0) head.x = boardSize - 1;
+            if (head.y >= boardSize) head.y = 0;
+            if (head.y < 0) head.y = boardSize - 1;
+        }
+
+        function checkCollisions() {
+            snakes.forEach((snake, index) => {
+                // Check self-collision
+                if (snake.body.slice(1).some(part => part.x === snake.body[0].x && part.y === snake.body[0].y)) {
+                    endGame();
+                }
+
+                // Check apple collision
+                apples.forEach((apple, appleIndex) => {
+                    if (snake.body[0].x === apple.x && snake.body[0].y === apple.y) {
+                        snake.body.push({ ...snake.body[snake.body.length - 1] });
+                        apples.splice(appleIndex, 1);
+                        score1 += 10; // Increment score
+                        scoreDisplay.innerText = `Score: ${score1}`;
+                    }
+                });
+
+                // Check power-up collision
+                powerUps.forEach((powerUp, powerUpIndex) => {
+                    if (snake.body[0].x === powerUp.x && snake.body[0].y === powerUp.y) {
+                        handlePowerUp(snake, powerUp);
+                        powerUps.splice(powerUpIndex, 1);
+                    }
+                });
+            });
+
+            // Check snake collision
+            if (snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y) {
+                endGame();
+            }
+        }
+
+        function handlePowerUp(snake, powerUp) {
+            if (powerUp.type === 'Speed Up') {
+                snakeSpeed = Math.min(10, snakeSpeed + 1);
+            } else if (powerUp.type === 'Speed Down') {
+                snakeSpeed = Math.max(1, snakeSpeed - 1);
+            } else if (powerUp.type === 'Score Up') {
+                score1 += 20; // Increment score
+                scoreDisplay.innerText = `Score: ${score1}`;
+            }
             clearInterval(gameInterval);
-            clearInterval(powerIntervalId);
-            isGameRunning = false;
-            canvas.style.display = 'none';
-            scoreElement.style.display = 'none';
-            finalScoreElement.textContent = `Final Score: ${score} - ${winnerMessage}`;
-            finalScoreElement.style.display = 'block';
-            menu.style.display = 'flex';
+            gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
         }
 
-        function showInfo() {
-            infoElement.style.display = 'block';
+        function endGame() {
+            clearInterval(gameInterval);
+            clearInterval(powerUpTimer);
+            alert(`Game Over! Final Score: ${score1}`);
+            document.location.reload(); // Reload the game
         }
 
-        function hideInfo() {
-            infoElement.style.display = 'none';
+        function controlSnake(event) {
+            if (event.key === 'w' && snakes[0].direction.y === 0) {
+                snakes[0].direction = { x: 0, y: -1 };
+            } else if (event.key === 's' && snakes[0].direction.y === 0) {
+                snakes[0].direction = { x: 0, y: 1 };
+            } else if (event.key === 'a' && snakes[0].direction.x === 0) {
+                snakes[0].direction = { x: -1, y: 0 };
+            } else if (event.key === 'd' && snakes[0].direction.x === 0) {
+                snakes[0].direction = { x: 1, y: 0 };
+            }
+            // Player 2 controls
+            if (event.key === 'ArrowUp' && snakes[1].direction.y === 0) {
+                snakes[1].direction = { x: 0, y: -1 };
+            } else if (event.key === 'ArrowDown' && snakes[1].direction.y === 0) {
+                snakes[1].direction = { x: 0, y: 1 };
+            } else if (event.key === 'ArrowLeft' && snakes[1].direction.x === 0) {
+                snakes[1].direction = { x: -1, y: 0 };
+            } else if (event.key === 'ArrowRight' && snakes[1].direction.x === 0) {
+                snakes[1].direction = { x: 1, y: 0 };
+            }
         }
+
+        document.addEventListener('keydown', controlSnake);
+        startBtn.addEventListener('click', initGame);
+        infoBtn.addEventListener('click', () => gameInfo.style.display = 'block');
+        closeInfo.addEventListener('click', () => gameInfo.style.display = 'none');
     </script>
 </body>
 </html>
