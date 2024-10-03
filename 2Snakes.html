@@ -228,11 +228,12 @@
 
         function drawPowerUps() {
             powerUps.forEach(powerUp => {
-                ctx.fillStyle = 'yellow';
+                ctx.fillStyle = 'magenta'; // Magenta background for power-ups
                 ctx.fillRect(powerUp.x * (canvas.width / boardSize), powerUp.y * (canvas.height / boardSize), 
                              (canvas.width / boardSize), (canvas.height / boardSize));
-                ctx.fillStyle = 'black';
-                ctx.fillText(powerUp.value, powerUp.x * (canvas.width / boardSize) + 5, 
+                ctx.fillStyle = 'white'; // Text color
+                ctx.fillText(powerUp.value, 
+                             powerUp.x * (canvas.width / boardSize) + 5, 
                              powerUp.y * (canvas.height / boardSize) + 15); // Show value
             });
         }
@@ -271,7 +272,8 @@
                     if (snake.body[0].x === apple.x && snake.body[0].y === apple.y) {
                         snake.body.push({ ...snake.body[snake.body.length - 1] });
                         apples.splice(appleIndex, 1);
-                        score1 += 10; // Increment score
+                        if (index === 0) score1 += 10; // Increment score for Player 1
+                        else score2 += 10; // Increment score for Player 2
                         scoreDisplay.innerText = `Score: ${score1}`;
                     }
                 });
@@ -297,7 +299,8 @@
             } else if (powerUp.value === 2) { // Speed Down
                 snakeSpeed = Math.max(1, snakeSpeed - 1);
             } else if (powerUp.value === 3) { // Score Up
-                score1 += 20; // Increment score
+                if (snake === snakes[0]) score1 += 20; // Increment score for Player 1
+                else score2 += 20; // Increment score for Player 2
                 scoreDisplay.innerText = `Score: ${score1}`;
             }
             clearInterval(gameInterval);
@@ -308,7 +311,7 @@
             clearInterval(gameInterval);
             clearInterval(powerUpTimer);
             const winnerMessage = loserIndex === 0 ? 'Player 2 Wins!' : 'Player 1 Wins!';
-            alert(`Game Over! Final Score: ${score1}. ${winnerMessage}`);
+            alert(`Game Over! Final Score: Player 1 - ${score1}, Player 2 - ${score2}. ${winnerMessage}`);
             document.location.reload(); // Reload the game with the same settings
         }
 
