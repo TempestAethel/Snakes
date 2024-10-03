@@ -6,90 +6,113 @@
     <title>Multiplayer Snake Game</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: Noricon, sans-serif;
-            background-color: #1c1c1c;
-            color: #ffffff;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom right, #1b1b1b, #3a3a3a);
+    color: #ffffff;
+    margin: 0;
+    padding: 20px;
+}
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
+h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+}
 
-        #controls {
-            margin: 20px;
-            display: flex;
-            flex-direction: column;
-            background-color: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+#controls {
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(42, 42, 42, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    transition: background 0.3s, transform 0.2s;
+}
 
-        label {
-            margin: 10px 0 5px;
-        }
+#controls:hover {
+    background: rgba(42, 42, 42, 1);
+    transform: translateY(-2px);
+}
 
-        input {
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            background-color: #3a3a3a;
-            color: #ffffff;
-        }
+label {
+    margin: 10px 0 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
 
-        button {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+input {
+    padding: 12px;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    transition: border-color 0.3s, background 0.3s;
+}
 
-        button:hover {
-            background-color: #45a049;
-        }
+input:focus {
+    border-color: #76c7c0;
+    background-color: #3c3c3c;
+    outline: none;
+}
 
-        canvas {
-            border: 2px solid #ffffff;
-            display: none;
-            margin-top: 20px;
-            border-radius: 8px;
-        }
+button {
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1em;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
 
-        #score {
-            font-size: 24px;
-            margin-top: 10px;
-        }
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
 
-        #game-info {
-            display: none;
-            background-color: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+canvas {
+    border: 2px solid #ffffff;
+    display: none;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
 
-        #game-info h2 {
-            margin: 0 0 10px;
-        }
+#score {
+    font-size: 28px;
+    margin-top: 10px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
 
-        #closeInfo {
-            background-color: #f44336;
-        }
+#game-info {
+    display: none;
+    background: rgba(42, 42, 42, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
 
-        #closeInfo:hover {
-            background-color: #d32f2f;
-        }
+#game-info h2 {
+    margin: 0 0 10px;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
+}
+
+#closeInfo {
+    background-color: #f44336;
+    transition: background-color 0.3s;
+}
+
+#closeInfo:hover {
+    background-color: #d32f2f;
+}
     </style>
 </head>
 <body>
