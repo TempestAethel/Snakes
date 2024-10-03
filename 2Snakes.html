@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -124,7 +125,6 @@
         const infoElement = document.getElementById('info');
 
         let grid = 16;
-        let count = 0;
         let snakeSpeed = 5;
         let score = 0;
         let gameInterval;
@@ -259,7 +259,7 @@
             ArrowUp: false,
             ArrowDown: false,
             ArrowLeft: false,
-            ArrowRight: false,
+            ArrowRight: false
         };
 
         document.addEventListener('keydown', (e) => {
@@ -282,14 +282,14 @@
                 snake1.dy = -grid;
             }
             if (keys.a && snake1.dy === 0) {
-                snake1.dx = 0;
-                snake1.dy = grid;
-            }
-            if (keys.s && snake1.dx === 0) {
                 snake1.dx = -grid;
                 snake1.dy = 0;
             }
-            if (keys.d && snake1.dx === 0) {
+            if (keys.s && snake1.dx === 0) {
+                snake1.dx = 0;
+                snake1.dy = grid;
+            }
+            if (keys.d && snake1.dy === 0) {
                 snake1.dx = grid;
                 snake1.dy = 0;
             }
@@ -299,15 +299,15 @@
                 snake2.dx = 0;
                 snake2.dy = -grid;
             }
-            if (keys.ArrowDown && snake2.dy === 0) {
+            if (keys.ArrowDown && snake2.dx === 0) {
                 snake2.dx = 0;
                 snake2.dy = grid;
             }
-            if (keys.ArrowLeft && snake2.dx === 0) {
+            if (keys.ArrowLeft && snake2.dy === 0) {
                 snake2.dx = -grid;
                 snake2.dy = 0;
             }
-            if (keys.ArrowRight && snake2.dx === 0) {
+            if (keys.ArrowRight && snake2.dy === 0) {
                 snake2.dx = grid;
                 snake2.dy = 0;
             }
@@ -337,11 +337,9 @@
         }
 
         function loop() {
-            count++;
-
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Update positions
+            // Update positions based on current direction
             snake1.x += snake1.dx;
             snake1.y += snake1.dy;
             snake2.x += snake2.dx;
@@ -409,7 +407,7 @@
 
             // Check for collision between snakes
             if (snake1.cells.some(cell => cell.x === snake2.x && cell.y === snake2.y)) {
-                endGame('Collision! Tie !');
+                endGame('Collision! Tie!');
             }
 
             // Draw snakes
