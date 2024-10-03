@@ -14,11 +14,6 @@
             background: #1a1a1a; /* Dark mode default */
             color: white;
             font-family: Arial, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.light-theme {
-            background: #f0f0f0;
-            color: #000;
         }
         canvas {
             border: 1px solid white;
@@ -79,7 +74,7 @@
             margin-top: 15px;
             color: white;
         }
-        </style>
+    </style>
 </head>
 <body>
 
@@ -262,63 +257,66 @@
             return Math.floor(Math.random() * (max - min)) + min;
         }
 
+        const keys = {
+            w: false,
+            a: false,
+            s: false,
+            d: false,
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+        };
+
         document.addEventListener('keydown', (e) => {
+            if (keys[e.key] !== undefined) {
+                keys[e.key] = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (keys[e.key] !== undefined) {
+                keys[e.key] = false;
+            }
+        });
+
+        function handleInput() {
             // Controls for left snake (cyan)
-            switch (e.key) {
-                case 'w':
-                    if (snake1.dy === 0) {
-                        snake1.dx = 0;
-                        snake1.dy = -grid;
-                    }
-                    break;
-                case 'a':
-                    if (snake1.dy === 0) {
-                        snake1.dx = 0;
-                        snake1.dy = grid;
-                    }
-                    break;
-                case 's':
-                    if (snake1.dx === 0) {
-                        snake1.dx = -grid;
-                        snake1.dy = 0;
-                    }
-                    break;
-                case 'd':
-                    if (snake1.dx === 0) {
-                        snake1.dx = grid;
-                        snake1.dy = 0;
-                    }
-                    break;
+            if (keys.w && snake1.dy === 0) {
+                snake1.dx = 0;
+                snake1.dy = -grid;
+            }
+            if (keys.a && snake1.dy === 0) {
+                snake1.dx = 0;
+                snake1.dy = grid;
+            }
+            if (keys.s && snake1.dx === 0) {
+                snake1.dx = -grid;
+                snake1.dy = 0;
+            }
+            if (keys.d && snake1.dx === 0) {
+                snake1.dx = grid;
+                snake1.dy = 0;
             }
             
             // Controls for right snake (teal)
-            switch (e.key) {
-                case 'ArrowUp':
-                    if (snake2.dy === 0) {
-                        snake2.dx = 0;
-                        snake2.dy = -grid;
-                    }
-                    break;
-                case 'ArrowDown':
-                    if (snake2.dy === 0) {
-                        snake2.dx = 0;
-                        snake2.dy = grid;
-                    }
-                    break;
-                case 'ArrowLeft':
-                    if (snake2.dx === 0) {
-                        snake2.dx = -grid;
-                        snake2.dy = 0;
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (snake2.dx === 0) {
-                        snake2.dx = grid;
-                        snake2.dy = 0;
-                    }
-                    break;
+            if (keys.ArrowUp && snake2.dy === 0) {
+                snake2.dx = 0;
+                snake2.dy = -grid;
             }
-        });
+            if (keys.ArrowDown && snake2.dy === 0) {
+                snake2.dx = 0;
+                snake2.dy = grid;
+            }
+            if (keys.ArrowLeft && snake2.dx === 0) {
+                snake2.dx = -grid;
+                snake2.dy = 0;
+            }
+            if (keys.ArrowRight && snake2.dx === 0) {
+                snake2.dx = grid;
+                snake2.dy = 0;
+            }
+        }
 
         function updateScore() {
             scoreElement.textContent = `Score: ${score}`;
@@ -344,6 +342,8 @@
                 return;
             }
             count = 0;
+
+            handleInput(); // Handle user input
 
             context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -467,10 +467,6 @@
 
         function hideInfo() {
             infoElement.style.display = 'none';
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
         }
     </script>
 </body>
