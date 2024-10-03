@@ -14,11 +14,6 @@
             background: #1a1a1a; /* Dark mode default */
             color: white;
             font-family: Arial, sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.light-theme {
-            background: #f0f0f0;
-            color: #000;
         }
         canvas {
             border: 1px solid white;
@@ -79,19 +74,9 @@
             margin-top: 15px;
             color: white;
         }
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-
-    <div class="theme-toggle">
-        <button onclick="toggleTheme()">Toggle Theme</button>
-    </div>
 
     <div id="menu">
         <h2>Snake Game</h2>
@@ -468,10 +453,6 @@
 
         function hideInfo() {
             infoElement.style.display = 'none';
-        }
-
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
         }
     </script>
 </body>
