@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake Games</title>
-    <link href="https://example.com/noricon-font.css" rel="stylesheet"> <!-- Update this with the correct font URL -->
     <style>
         body {
             font-family: 'Noricon', sans-serif;
@@ -55,9 +54,31 @@
             color: #ffffff; /* Change link color on hover */
             background-color: rgba(255, 255, 255, 0.2); /* Lighten background on hover */
         }
+
+        .info-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #1e90ff, #00bfff);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .info-button:hover {
+            background: linear-gradient(45deg, #00bfff, #1e90ff);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
+    <button class="info-button" onclick="window.location.href='info.html'">ℹ</button>
     <div class="link-container">
         <h1>Choose Your Game</h1>
         <a href="Snake.html">Play Snake</a>
