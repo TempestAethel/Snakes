@@ -1,123 +1,146 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiplayer Snake Game</title>
     <style>
-        body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom right, #1b1b1b, #3a3a3a);
-    color: #ffffff;
-    margin: 0;
-    padding: 20px;
-}
+    /* General body styling */
+    body {
+        display: flex; /* Use flexbox for layout */
+        flex-direction: column; /* Stack items vertically */
+        align-items: center; /* Center items horizontally */
+        font-family: 'Arial', sans-serif; /* Set font */
+        color: #ffffff; /* Text color */
+        margin: 0; /* Remove default margin */
+        padding: 20px; /* Add padding */
+        position: relative; /* Allow absolute positioning of pixel canvas */
+        overflow: hidden; /* Prevent scrollbars from appearing */
+    }
 
-h1 {
-    font-size: 3em;
-    margin-bottom: 10px;
-    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
-    letter-spacing: 2px;
-}
+    /* Header styling */
+    h1 {
+        font-size: 3em; /* Large font size for header */
+        margin-bottom: 10px; /* Space below header */
+        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8); /* Shadow effect */
+        letter-spacing: 2px; /* Space between letters */
+    }
 
-#controls {
-    margin: 20px;
-    display: flex;
-    flex-direction: column;
-    background: rgba(42, 42, 42, 0.9);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-    transition: background 0.3s, transform 0.2s;
-}
+    /* Full-screen pixel effect canvas */
+    #pixelCanvas {
+        position: absolute; /* Positioning to fill the body */
+        top: 0; /* Align to the top */
+        left: 0; /* Align to the left */
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        pointer-events: none; /* Allow interactions to pass through */
+    }
 
-#controls:hover {
-    background: rgba(42, 42, 42, 1);
-    transform: translateY(-2px);
-}
+    /* Control panel styling */
+    #controls {
+        margin: 20px; /* Space around controls */
+        display: flex; /* Use flexbox for layout */
+        flex-direction: column; /* Stack items vertically */
+        background: rgba(42, 42, 42, 0.9); /* Dark semi-transparent background */
+        padding: 20px; /* Inner padding */
+        border-radius: 12px; /* Rounded corners */
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); /* Shadow effect */
+        transition: background 0.3s, transform 0.2s; /* Smooth transitions */
+        z-index: 1; /* Ensure controls are above pixel canvas */
+    }
 
-label {
-    margin: 10px 0 5px;
-    font-weight: bold;
-    font-size: 1.1em;
-}
+    /* Label styling */
+    label {
+        margin: 10px 0 5px; /* Space around labels */
+        font-weight: bold; /* Bold text */
+        font-size: 1.1em; /* Slightly larger font */
+    }
 
-input {
-    padding: 12px;
-    border: 2px solid #4CAF50;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    background-color: #2a2a2a;
-    color: #ffffff;
-    transition: border-color 0.3s, background 0.3s;
-}
+    /* Input field styling */
+    input {
+        padding: 12px; /* Inner padding */
+        border: 2px solid #4CAF50; /* Border color */
+        border-radius: 5px; /* Rounded corners */
+        margin-bottom: 10px; /* Space below inputs */
+        background-color: #2a2a2a; /* Dark background */
+        color: #ffffff; /* Text color */
+        transition: border-color 0.3s, background 0.3s; /* Smooth transitions */
+    }
 
-input:focus {
-    border-color: #76c7c0;
-    background-color: #3c3c3c;
-    outline: none;
-}
+    /* Input field focus styling */
+    input:focus {
+        border-color: #76c7c0; /* Change border color on focus */
+        background-color: #3c3c3c; /* Change background on focus */
+        outline: none; /* Remove default outline */
+    }
 
-button {
-    padding: 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    font-size: 1em;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
+    /* Button styling */
+    button {
+        padding: 12px; /* Inner padding */
+        background-color: #4CAF50; /* Button color */
+        color: white; /* Text color */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer on hover */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
+        font-size: 1em; /* Standard font size */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Shadow effect */
+    }
 
-button:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
-}
+    /* Button hover effect */
+    button:hover {
+        background-color: #45a049; /* Change color on hover */
+        transform: scale(1.05); /* Slightly enlarge on hover */
+    }
 
-canvas {
-    border: 2px solid #ffffff;
-    display: none;
-    margin-top: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-}
+    /* Canvas styling for pixel effect */
+    canvas {
+        border: 2px solid #ffffff; /* White border */
+        display: none; /* Hidden by default */
+        margin-top: 20px; /* Space above canvas */
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); /* Glow effect */
+    }
 
-#score {
-    font-size: 28px;
-    margin-top: 10px;
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-}
+    /* Score display styling */
+    #score {
+        font-size: 28px; /* Large font size for score */
+        margin-top: 10px; /* Space above score */
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8); /* Shadow effect */
+    }
 
-#game-info {
-    display: none;
-    background: rgba(42, 42, 42, 0.9);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-}
+    /* Game info display styling */
+    #game-info {
+        display: none; /* Hidden by default */
+        background: rgba(42, 42, 42, 0.9); /* Dark semi-transparent background */
+        padding: 20px; /* Inner padding */
+        border-radius: 12px; /* Rounded corners */
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); /* Shadow effect */
+        z-index: 1; /* Ensure info is above pixel canvas */
+    }
 
-#game-info h2 {
-    margin: 0 0 10px;
-    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
-}
+    /* Header inside game info */
+    #game-info h2 {
+        margin: 0 0 10px; /* Space below header */
+        text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6); /* Shadow effect */
+    }
 
-#closeInfo {
-    background-color: #f44336;
-    transition: background-color 0.3s;
-}
+    /* Close button styling */
+    #closeInfo {
+        background-color: #f44336; /* Red background */
+        transition: background-color 0.3s; /* Smooth transition */
+    }
 
-#closeInfo:hover {
-    background-color: #d32f2f;
-}
-    </style>
+    /* Close button hover effect */
+    #closeInfo:hover {
+        background-color: #d32f2f; /* Darker red on hover */
+    }
+</style>
 </head>
 <body>
+    <canvas id="pixelCanvas"></canvas> <!-- Canvas for falling pixel effect -->
     <h1>Multiplayer Snake Game</h1>
     <div id="controls">
+        <!-- Controls for game settings -->
         <label for="boardSize">Board Size (10-50):</label>
         <input type="number" id="boardSize" min="10" max="50" value="20">
         
@@ -134,9 +157,9 @@ canvas {
         <button id="infoBtn">Game Info</button>
     </div>
     
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <div id="score">Score: 0</div>
-    <div id="game-info">
+    <canvas id="gameCanvas" width="400" height="400"></canvas> <!-- Main game canvas -->
+    <div id="score">Score: 0</div> <!-- Score display -->
+    <div id="game-info"> <!-- Game info section -->
         <h2>Game Rules</h2>
         <p>Player 1 (Cyan): W, A, S, D | Player 2 (Teal): Arrow Keys</p>
         <p>Eat apples to grow longer and earn points. Avoid colliding with yourself or the other player!</p>
@@ -146,10 +169,11 @@ canvas {
             <li>2 - Speed Down</li>
             <li>3 - Score Up</li>
         </ul>
-        <button id="closeInfo">Close</button>
+        <button id="closeInfo">Close</button> <!-- Button to close game info -->
     </div>
 
     <script>
+        // Get elements from the DOM
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
@@ -157,7 +181,14 @@ canvas {
         const infoBtn = document.getElementById('infoBtn');
         const gameInfo = document.getElementById('game-info');
         const closeInfo = document.getElementById('closeInfo');
+        const pixelCanvas = document.getElementById('pixelCanvas');
+        const pixelCtx = pixelCanvas.getContext('2d');
+        
+        // Set canvas dimensions
+        pixelCanvas.width = window.innerWidth;
+        pixelCanvas.height = window.innerHeight;
 
+        // Retrieve game settings from localStorage or set defaults
         let boardSize = parseInt(localStorage.getItem('boardSize')) || 20;
         let snakeSpeed = parseInt(localStorage.getItem('snakeSpeed')) || 5;
         let numApples = parseInt(localStorage.getItem('numApples')) || 3;
@@ -165,49 +196,83 @@ canvas {
         let snakes, apples, powerUps, gameInterval, gameRunning, powerUpTimer;
         let score1, score2;
 
+        // Initialize falling pixels effect
+        function initFallingPixels() {
+            const pixelCount = 100; // Total number of pixels
+            const pixels = [];
+
+            // Create random pixels
+            for (let i = 0; i < pixelCount; i++) {
+                pixels.push({
+                    x: Math.random() * pixelCanvas.width,
+                    y: Math.random() * pixelCanvas.height,
+                    size: Math.random() * 5 + 2, // Random size for pixel
+                    speed: Math.random() * 2 + 1 // Random fall speed
+                });
+            }
+
+            // Draw falling pixels
+            function drawPixels() {
+                pixelCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height); // Clear canvas
+                pixels.forEach(pixel => {
+                    pixelCtx.fillStyle = 'rgba(255, 255, 255, 0.8)'; // Set pixel color
+                    pixelCtx.fillRect(pixel.x, pixel.y, pixel.size, pixel.size); // Draw pixel
+                    pixel.y += pixel.speed; // Move pixel downwards
+
+                    // Reset pixel if it goes off-screen
+                    if (pixel.y > pixelCanvas.height) {
+                        pixel.y = 0;
+                        pixel.x = Math.random() * pixelCanvas.width;
+                    }
+                });
+                requestAnimationFrame(drawPixels); // Loop for animation
+            }
+
+            drawPixels(); // Start drawing pixels
+        }
+
+        initFallingPixels(); // Start the falling pixel effect
+
+        // Initialize game with settings from inputs
         function initGame() {
             boardSize = parseInt(document.getElementById('boardSize').value);
             snakeSpeed = parseInt(document.getElementById('snakeSpeed').value);
             numApples = parseInt(document.getElementById('numApples').value);
             powerUpFreq = parseInt(document.getElementById('powerUpFreq').value) * 1000;
 
-            // Store settings in localStorage
+            // Save settings in localStorage
             localStorage.setItem('boardSize', boardSize);
             localStorage.setItem('snakeSpeed', snakeSpeed);
             localStorage.setItem('numApples', numApples);
             localStorage.setItem('powerUpFreq', powerUpFreq / 1000); // Store in seconds
 
+            // Initialize game state
             snakes = [
                 { body: [{ x: 5, y: 5 }], direction: { x: 0, y: 0 }, color: 'cyan' },
                 { body: [{ x: 15, y: 15 }], direction: { x: 0, y: 0 }, color: 'teal' }
             ];
-            apples = [];
-            powerUps = [];
-            score1 = 0;
-            score2 = 0;
-            gameRunning = true;
-            scoreDisplay.innerText = 'Score: 0';
-            createApples();
-            draw();
-            canvas.style.display = 'block'; // Show canvas
-            document.getElementById('controls').style.display = 'none'; // Hide menu
-            gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
-            powerUpTimer = setInterval(spawnPowerUp, powerUpFreq);
+            apples = []; // Array to hold apples
+            powerUps = []; // Array to hold power-ups
+            score1 = 0; // Player 1 score
+            score2 = 0; // Player 2 score
+            gameRunning = true; // Game state
         }
 
+        // Create apples on the board
         function createApples() {
             while (apples.length < numApples) {
                 const newApple = {
                     x: Math.floor(Math.random() * boardSize),
                     y: Math.floor(Math.random() * boardSize)
                 };
-                // Check if the new apple is on an empty tile
+                // Ensure apple is placed on an empty tile
                 if (!isOccupied(newApple)) {
                     apples.push(newApple);
                 }
             }
         }
 
+        // Spawn a new apple in an empty space
         function spawnNewApple() {
             let newApple;
             do {
@@ -215,15 +280,16 @@ canvas {
                     x: Math.floor(Math.random() * boardSize),
                     y: Math.floor(Math.random() * boardSize)
                 };
-            } while (isOccupied(newApple)); // Ensure the new apple is on an empty tile
+            } while (isOccupied(newApple)); // Ensure apple is on an empty tile
             apples.push(newApple);
         }
 
+        // Check if a position is occupied by any snake body part
         function isOccupied(position) {
-            // Check if the position is occupied by any snake body part
             return snakes.some(snake => snake.body.some(part => part.x === position.x && part.y === position.y));
         }
 
+        // Spawn a power-up randomly on the board
         function spawnPowerUp() {
             const types = ['Speed Up', 'Speed Down', 'Score Up'];
             const values = [1, 2, 3]; // Assign values for each power-up
@@ -235,25 +301,28 @@ canvas {
             });
         }
 
+        // Main draw function for the game
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBoard();
-            drawSnakes();
-            drawApples();
-            drawPowerUps();
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear game canvas
+            drawBoard(); // Draw grid
+            drawSnakes(); // Draw snakes
+            drawApples(); // Draw apples
+            drawPowerUps(); // Draw power-ups
         }
 
+        // Draw the game board/grid
         function drawBoard() {
             for (let i = 0; i < boardSize; i++) {
-                ctx.strokeStyle = 'grey';
+                ctx.strokeStyle = 'grey'; // Grid line color
                 ctx.strokeRect((i * canvas.width) / boardSize, 0, canvas.width / boardSize, canvas.height);
                 ctx.strokeRect(0, (i * canvas.height) / boardSize, canvas.width, canvas.height / boardSize);
             }
         }
 
+        // Draw snakes on the board
         function drawSnakes() {
             snakes.forEach(snake => {
-                ctx.fillStyle = snake.color;
+                ctx.fillStyle = snake.color; // Set snake color
                 snake.body.forEach(part => {
                     ctx.fillRect(part.x * (canvas.width / boardSize), part.y * (canvas.height / boardSize), 
                                  (canvas.width / boardSize), (canvas.height / boardSize));
@@ -261,41 +330,46 @@ canvas {
             });
         }
 
+        // Draw apples on the board
         function drawApples() {
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = 'red'; // Apple color
             apples.forEach(apple => {
                 ctx.fillRect(apple.x * (canvas.width / boardSize), apple.y * (canvas.height / boardSize), 
                              (canvas.width / boardSize), (canvas.height / boardSize));
             });
         }
 
+        // Draw power-ups on the board
         function drawPowerUps() {
             powerUps.forEach(powerUp => {
-                ctx.fillStyle = 'magenta'; // Magenta background for power-ups
+                ctx.fillStyle = 'magenta'; // Power-up background color
                 ctx.fillRect(powerUp.x * (canvas.width / boardSize), powerUp.y * (canvas.height / boardSize), 
                              (canvas.width / boardSize), (canvas.height / boardSize));
                 ctx.fillStyle = 'white'; // Text color
                 ctx.fillText(powerUp.value, 
                              powerUp.x * (canvas.width / boardSize) + 5, 
-                             powerUp.y * (canvas.height / boardSize) + 15); // Show value
+                             powerUp.y * (canvas.height / boardSize) + 15); // Show power-up value
             });
         }
 
+        // Main game loop
         function gameLoop() {
-            moveSnakes();
-            checkCollisions();
-            draw();
+            moveSnakes(); // Move snakes
+            checkCollisions(); // Check for collisions
+            draw(); // Update the canvas
         }
 
+        // Move snakes based on their direction
         function moveSnakes() {
             snakes.forEach(snake => {
                 const head = { x: snake.body[0].x + snake.direction.x, y: snake.body[0].y + snake.direction.y };
-                wrapAround(head);
-                snake.body.unshift(head);
-                snake.body.pop();
+                wrapAround(head); // Handle wrap-around behavior
+                snake.body.unshift(head); // Add new head
+                snake.body.pop(); // Remove tail
             });
         }
 
+        // Wrap around the board edges
         function wrapAround(head) {
             if (head.x >= boardSize) head.x = 0;
             if (head.x < 0) head.x = boardSize - 1;
@@ -303,42 +377,42 @@ canvas {
             if (head.y < 0) head.y = boardSize - 1;
         }
 
+        // Check for collisions with apples, power-ups, and self
         function checkCollisions() {
             snakes.forEach((snake, index) => {
-                // Check self-collision
+                // Check for self-collision
                 if (snake.body.slice(1).some(part => part.x === snake.body[0].x && part.y === snake.body[0].y)) {
-                    endGame(index);
+                    endGame(index); // End game if colliding with self
                 }
 
-                // Check apple collision
+                // Check for apple collision
                 apples.forEach((apple, appleIndex) => {
                     if (snake.body[0].x === apple.x && snake.body[0].y === apple.y) {
-                        snake.body.push({ ...snake.body[snake.body.length - 1] });
-                        apples.splice(appleIndex, 1);
-                        spawnNewApple(); // Create a new apple in an empty tile
-                        if (index === 0) score1 += 10; // Increment score for Player 1
-                        else score2 += 10; // Increment score for Player 2
-                        scoreDisplay.innerText = `Score: ${score1}`;
+                        snake.body.push({ ...snake.body[snake.body.length - 1] }); // Grow snake
+                        apples.splice(appleIndex, 1); // Remove eaten apple
+                        spawnNewApple(); // Spawn new apple
+                        if (index === 0) score1 += 10; // Update score for Player 1
+                        else score2 += 10; // Update score for Player 2
+                        scoreDisplay.innerText = `Score: ${score1}`; // Display score
                     }
                 });
 
-                // Check power-up collision
+                // Check for power-up collision
                 powerUps.forEach((powerUp, powerUpIndex) => {
                     if (snake.body[0].x === powerUp.x && snake.body[0].y === powerUp.y) {
-                        handlePowerUp(snake, powerUp);
-                        powerUps.splice(powerUpIndex, 1);
+                        handlePowerUp(snake, powerUp); // Handle power-up effect
+                        powerUps.splice(powerUpIndex, 1); // Remove used power-up
                     }
                 });
             });
 
-            // Check snake collision
+            // Check for collision between snakes
             if (snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y) {
-                // If they collide, we will end the game
-                const loserIndex = snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y ? null : -1;
-                endGame(loserIndex);
+                endGame(snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y ? null : -1);
             }
         }
 
+        // Handle power-up effects based on type
         function handlePowerUp(snake, powerUp) {
             if (powerUp.value === 1) { // Speed Up
                 snakeSpeed = Math.min(10, snakeSpeed + 1);
@@ -347,22 +421,25 @@ canvas {
             } else if (powerUp.value === 3) { // Score Up
                 if (snake === snakes[0]) score1 += 20; // Increment score for Player 1
                 else score2 += 20; // Increment score for Player 2
-                scoreDisplay.innerText = `Score: ${score1}`;
+                scoreDisplay.innerText = `Score: ${score1}`; // Update score display
             }
-            clearInterval(gameInterval);
-            gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
+            clearInterval(gameInterval); // Clear current game loop
+            gameInterval = setInterval(gameLoop, 100 / snakeSpeed); // Restart game loop with new speed
         }
 
+        // End the game and display results
         function endGame(loserIndex) {
-            clearInterval(gameInterval);
-            clearInterval(powerUpTimer);
-            const winnerIndex = loserIndex === 0 ? 1 : 0;
+            clearInterval(gameInterval); // Stop game loop
+            clearInterval(powerUpTimer); // Stop power-up timer
+            const winnerIndex = loserIndex === 0 ? 1 : 0; // Determine winner
             const winnerMessage = `Player ${winnerIndex + 1} Wins!`;
-            alert(`Game Over! Final Score: Player 1 - ${score1}, Player 2 - ${score2}. ${winnerMessage}`);
-            document.location.reload(); // Reload the game with the same settings
+            alert(`Game Over! Final Score: Player 1 - ${score1}, Player 2 - ${score2}. ${winnerMessage}`); // Display winner message
+            document.location.reload(); // Reload game
         }
 
+        // Control snake movement based on keyboard input
         function controlSnake(event) {
+            // Player 1 controls
             if (event.key === 'w' && snakes[0].direction.y === 0) {
                 snakes[0].direction = { x: 0, y: -1 };
             } else if (event.key === 's' && snakes[0].direction.y === 0) {
@@ -384,10 +461,11 @@ canvas {
             }
         }
 
+        // Event listeners for keyboard controls and button actions
         document.addEventListener('keydown', controlSnake);
         startBtn.addEventListener('click', initGame);
-        infoBtn.addEventListener('click', () => gameInfo.style.display = 'block');
-        closeInfo.addEventListener('click', () => gameInfo.style.display = 'none');
+        infoBtn.addEventListener('click', () => gameInfo.style.display = 'block'); // Show game info
+        closeInfo.addEventListener('click', () => gameInfo.style.display = 'none'); // Close game info
     </script>
 </body>
 </html>
