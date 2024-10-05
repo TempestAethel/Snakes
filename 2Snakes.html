@@ -5,129 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiplayer Snake Game</title>
     <style>
-        /* Basic styling for the body */
         body {
-            display: flex; /* Use flexbox for alignment */
-            flex-direction: column; /* Stack elements vertically */
-            align-items: center; /* Center elements horizontally */
-            font-family: 'Arial', sans-serif; /* Font family */
-            background: linear-gradient(to bottom right, #1b1b1b, #3a3a3a); /* Dark gradient background */
-            color: #ffffff; /* White text color */
-            margin: 0; /* Remove default margin */
-            padding: 20px; /* Add padding around the content */
-        }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom right, #1b1b1b, #3a3a3a);
+    color: #ffffff;
+    margin: 0;
+    padding: 20px;
+}
 
-        /* Styling for the main heading */
-        h1 {
-            font-size: 3em; /* Large font size */
-            margin-bottom: 10px; /* Space below the heading */
-            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8); /* Shadow effect for text */
-            letter-spacing: 2px; /* Space between letters */
-        }
+h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+}
 
-        /* Styling for the control panel */
-        #controls {
-            margin: 20px; /* Margin around controls */
-            display: flex; /* Use flexbox for layout */
-            flex-direction: column; /* Stack controls vertically */
-            background: rgba(42, 42, 42, 0.9); /* Dark semi-transparent background */
-            padding: 20px; /* Padding inside the controls */
-            border-radius: 12px; /* Rounded corners */
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); /* Shadow effect */
-            transition: background 0.3s, transform 0.2s; /* Transition effects */
-        }
+#controls {
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(42, 42, 42, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    transition: background 0.3s, transform 0.2s;
+}
 
-        /* Hover effect for controls */
-        #controls:hover {
-            background: rgba(42, 42, 42, 1); /* Darker background on hover */
-            transform: translateY(-2px); /* Slight upward movement */
-        }
+#controls:hover {
+    background: rgba(42, 42, 42, 1);
+    transform: translateY(-2px);
+}
 
-        /* Styling for labels */
-        label {
-            margin: 10px 0 5px; /* Margins around labels */
-            font-weight: bold; /* Bold font for labels */
-            font-size: 1.1em; /* Slightly larger font size */
-        }
+label {
+    margin: 10px 0 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
 
-        /* Styling for input fields */
-        input {
-            padding: 12px; /* Padding inside input */
-            border: 2px solid #4CAF50; /* Green border */
-            border-radius: 5px; /* Rounded corners */
-            margin-bottom: 10px; /* Space below each input */
-            background-color: #2a2a2a; /* Dark background for input */
-            color: #ffffff; /* White text color */
-            transition: border-color 0.3s, background 0.3s; /* Transition effects */
-        }
+input {
+    padding: 12px;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    transition: border-color 0.3s, background 0.3s;
+}
 
-        /* Focus effect for input fields */
-        input:focus {
-            border-color: #76c7c0; /* Change border color on focus */
-            background-color: #3c3c3c; /* Change background color on focus */
-            outline: none; /* Remove outline */
-        }
+input:focus {
+    border-color: #76c7c0;
+    background-color: #3c3c3c;
+    outline: none;
+}
 
-        /* Styling for buttons */
-        button {
-            padding: 12px; /* Padding inside buttons */
-            background-color: #4CAF50; /* Green background */
-            color: white; /* White text color */
-            border: none; /* Remove border */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Change cursor to pointer */
-            transition: background-color 0.3s, transform 0.2s; /* Transition effects */
-            font-size: 1em; /* Font size */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Shadow effect */
-        }
+button {
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1em;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
 
-        /* Hover effect for buttons */
-        button:hover {
-            background-color: #45a049; /* Darker green on hover */
-            transform: scale(1.05); /* Slightly enlarge on hover */
-        }
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
 
-        /* Styling for the game canvas */
-        canvas {
-            border: 2px solid #ffffff; /* White border */
-            display: none; /* Initially hidden */
-            margin-top: 20px; /* Space above canvas */
-            border-radius: 10px; /* Rounded corners */
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); /* Glow effect */
-        }
+canvas {
+    border: 2px solid #ffffff;
+    display: none;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
 
-        /* Styling for score display */
-        #score {
-            font-size: 28px; /* Font size */
-            margin-top: 10px; /* Space above score */
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8); /* Shadow effect */
-        }
+#score {
+    font-size: 28px;
+    margin-top: 10px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
 
-        /* Styling for game info panel */
-        #game-info {
-            display: none; /* Initially hidden */
-            background: rgba(42, 42, 42, 0.9); /* Dark semi-transparent background */
-            padding: 20px; /* Padding inside the info panel */
-            border-radius: 12px; /* Rounded corners */
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6); /* Shadow effect */
-        }
+#game-info {
+    display: none;
+    background: rgba(42, 42, 42, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
 
-        /* Styling for game info heading */
-        #game-info h2 {
-            margin: 0 0 10px; /* Margins around heading */
-            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6); /* Shadow effect */
-        }
+#game-info h2 {
+    margin: 0 0 10px;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
+}
 
-        /* Styling for close button in game info */
-        #closeInfo {
-            background-color: #f44336; /* Red background */
-            transition: background-color 0.3s; /* Transition effect */
-        }
+#closeInfo {
+    background-color: #f44336;
+    transition: background-color 0.3s;
+}
 
-        /* Hover effect for close button */
-        #closeInfo:hover {
-            background-color: #d32f2f; /* Darker red on hover */
-        }
+#closeInfo:hover {
+    background-color: #d32f2f;
+}
     </style>
 </head>
 <body>
@@ -142,7 +127,7 @@
         <label for="numApples">Number of Apples (1-50):</label>
         <input type="number" id="numApples" min="1" max="50" value="2">
         
-        <label for="powerUpFreq">Power Up Frequency (1-100s):</label>
+        <label for="powerUpFreq">Power up Frequency (1-100s):</label>
         <input type="number" id="powerUpFreq" min="1" max="100" value="10">
         
         <button id="startBtn">Start Game</button>
@@ -165,16 +150,14 @@
     </div>
 
     <script>
-        // Get elements from the DOM
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d'); // Get 2D drawing context
+        const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
         const startBtn = document.getElementById('startBtn');
         const infoBtn = document.getElementById('infoBtn');
         const gameInfo = document.getElementById('game-info');
         const closeInfo = document.getElementById('closeInfo');
 
-        // Initialize game settings with localStorage values or defaults
         let boardSize = parseInt(localStorage.getItem('boardSize')) || 20;
         let snakeSpeed = parseInt(localStorage.getItem('snakeSpeed')) || 5;
         let numApples = parseInt(localStorage.getItem('numApples')) || 3;
@@ -182,174 +165,229 @@
         let snakes, apples, powerUps, gameInterval, gameRunning, powerUpTimer;
         let score1, score2;
 
-        // Function to initialize the game
         function initGame() {
-            // Retrieve user settings from inputs
             boardSize = parseInt(document.getElementById('boardSize').value);
             snakeSpeed = parseInt(document.getElementById('snakeSpeed').value);
             numApples = parseInt(document.getElementById('numApples').value);
             powerUpFreq = parseInt(document.getElementById('powerUpFreq').value) * 1000;
 
-            // Save settings to localStorage
+            // Store settings in localStorage
             localStorage.setItem('boardSize', boardSize);
             localStorage.setItem('snakeSpeed', snakeSpeed);
             localStorage.setItem('numApples', numApples);
-            localStorage.setItem('powerUpFreq', powerUpFreq / 1000);
+            localStorage.setItem('powerUpFreq', powerUpFreq / 1000); // Store in seconds
 
-            // Setup game state
             snakes = [
-                { body: [{ x: 5, y: 5 }], direction: 'right' }, // Player 1
-                { body: [{ x: 15, y: 15 }], direction: 'left' }  // Player 2
+                { body: [{ x: 5, y: 5 }], direction: { x: 0, y: 0 }, color: 'cyan' },
+                { body: [{ x: 15, y: 15 }], direction: { x: 0, y: 0 }, color: 'teal' }
             ];
             apples = [];
             powerUps = [];
             score1 = 0;
             score2 = 0;
             gameRunning = true;
+            scoreDisplay.innerText = 'Score: 0';
+            createApples();
+            draw();
+            canvas.style.display = 'block'; // Show canvas
+            document.getElementById('controls').style.display = 'none'; // Hide menu
+            gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
+            powerUpTimer = setInterval(spawnPowerUp, powerUpFreq);
+        }
 
-            // Generate initial apples
-            for (let i = 0; i < numApples; i++) {
-                spawnApple();
+        function createApples() {
+            while (apples.length < numApples) {
+                const newApple = {
+                    x: Math.floor(Math.random() * boardSize),
+                    y: Math.floor(Math.random() * boardSize)
+                };
+                // Check if the new apple is on an empty tile
+                if (!isOccupied(newApple)) {
+                    apples.push(newApple);
+                }
             }
+        }
 
-            // Start game loop
-            gameInterval = setInterval(gameLoop, 1000 / snakeSpeed);
+        function spawnNewApple() {
+            let newApple;
+            do {
+                newApple = {
+                    x: Math.floor(Math.random() * boardSize),
+                    y: Math.floor(Math.random() * boardSize)
+                };
+            } while (isOccupied(newApple)); // Ensure the new apple is on an empty tile
+            apples.push(newApple);
+        }
+
+        function isOccupied(position) {
+            // Check if the position is occupied by any snake body part
+            return snakes.some(snake => snake.body.some(part => part.x === position.x && part.y === position.y));
+        }
+
+        function spawnPowerUp() {
+            const types = ['Speed Up', 'Speed Down', 'Score Up'];
+            const values = [1, 2, 3]; // Assign values for each power-up
+            powerUps.push({
+                x: Math.floor(Math.random() * boardSize),
+                y: Math.floor(Math.random() * boardSize),
+                type: types[Math.floor(Math.random() * types.length)],
+                value: values[Math.floor(Math.random() * values.length)] // Randomly assign a value
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBoard();
+            drawSnakes();
+            drawApples();
+            drawPowerUps();
+        }
+
+        function drawBoard() {
+            for (let i = 0; i < boardSize; i++) {
+                ctx.strokeStyle = 'grey';
+                ctx.strokeRect((i * canvas.width) / boardSize, 0, canvas.width / boardSize, canvas.height);
+                ctx.strokeRect(0, (i * canvas.height) / boardSize, canvas.width, canvas.height / boardSize);
+            }
+        }
+
+        function drawSnakes() {
+            snakes.forEach(snake => {
+                ctx.fillStyle = snake.color;
+                snake.body.forEach(part => {
+                    ctx.fillRect(part.x * (canvas.width / boardSize), part.y * (canvas.height / boardSize), 
+                                 (canvas.width / boardSize), (canvas.height / boardSize));
+                });
+            });
+        }
+
+        function drawApples() {
+            ctx.fillStyle = 'red';
+            apples.forEach(apple => {
+                ctx.fillRect(apple.x * (canvas.width / boardSize), apple.y * (canvas.height / boardSize), 
+                             (canvas.width / boardSize), (canvas.height / boardSize));
+            });
+        }
+
+        function drawPowerUps() {
+            powerUps.forEach(powerUp => {
+                ctx.fillStyle = 'magenta'; // Magenta background for power-ups
+                ctx.fillRect(powerUp.x * (canvas.width / boardSize), powerUp.y * (canvas.height / boardSize), 
+                             (canvas.width / boardSize), (canvas.height / boardSize));
+                ctx.fillStyle = 'white'; // Text color
+                ctx.fillText(powerUp.value, 
+                             powerUp.x * (canvas.width / boardSize) + 5, 
+                             powerUp.y * (canvas.height / boardSize) + 15); // Show value
+            });
+        }
+
+        function gameLoop() {
+            moveSnakes();
+            checkCollisions();
             draw();
         }
 
-        // Function to spawn an apple at a random position
-        function spawnApple() {
-            let apple = {
-                x: Math.floor(Math.random() * boardSize),
-                y: Math.floor(Math.random() * boardSize)
-            };
-
-            // Ensure apple doesn't spawn on snake bodies
-            if (!snakes.some(snake => snake.body.some(segment => segment.x === apple.x && segment.y === apple.y))) {
-                apples.push(apple);
-            } else {
-                spawnApple(); // Try again if position is occupied
-            }
+        function moveSnakes() {
+            snakes.forEach(snake => {
+                const head = { x: snake.body[0].x + snake.direction.x, y: snake.body[0].y + snake.direction.y };
+                wrapAround(head);
+                snake.body.unshift(head);
+                snake.body.pop();
+            });
         }
 
-        // Function to draw game elements
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-            ctx.fillStyle = 'black'; // Background color
-            ctx.fillRect(0, 0, canvas.width, canvas.height); // Draw background
+        function wrapAround(head) {
+            if (head.x >= boardSize) head.x = 0;
+            if (head.x < 0) head.x = boardSize - 1;
+            if (head.y >= boardSize) head.y = 0;
+            if (head.y < 0) head.y = boardSize - 1;
+        }
 
-            // Draw snakes
+        function checkCollisions() {
             snakes.forEach((snake, index) => {
-                ctx.fillStyle = index === 0 ? 'cyan' : 'teal'; // Color based on player
-                snake.body.forEach(segment => {
-                    ctx.fillRect(segment.x * 20, segment.y * 20, 18, 18); // Draw each segment
+                // Check self-collision
+                if (snake.body.slice(1).some(part => part.x === snake.body[0].x && part.y === snake.body[0].y)) {
+                    endGame(index);
+                }
+
+                // Check apple collision
+                apples.forEach((apple, appleIndex) => {
+                    if (snake.body[0].x === apple.x && snake.body[0].y === apple.y) {
+                        snake.body.push({ ...snake.body[snake.body.length - 1] });
+                        apples.splice(appleIndex, 1);
+                        spawnNewApple(); // Create a new apple in an empty tile
+                        if (index === 0) score1 += 10; // Increment score for Player 1
+                        else score2 += 10; // Increment score for Player 2
+                        scoreDisplay.innerText = `Score: ${score1}`;
+                    }
+                });
+
+                // Check power-up collision
+                powerUps.forEach((powerUp, powerUpIndex) => {
+                    if (snake.body[0].x === powerUp.x && snake.body[0].y === powerUp.y) {
+                        handlePowerUp(snake, powerUp);
+                        powerUps.splice(powerUpIndex, 1);
+                    }
                 });
             });
 
-            // Draw apples
-            ctx.fillStyle = 'red'; // Color for apples
-            apples.forEach(apple => {
-                ctx.fillRect(apple.x * 20, apple.y * 20, 18, 18); // Draw each apple
-            });
-
-            // Draw scores
-            scoreDisplay.textContent = `Score: ${score1} | ${score2}`;
-        }
-
-        // Function for the main game loop
-        function gameLoop() {
-            // Move snakes based on their current direction
-            snakes.forEach((snake, index) => {
-                moveSnake(snake);
-                checkCollisions(snake, index);
-            });
-
-            // Spawn power-ups at intervals
-            if (powerUpTimer) clearTimeout(powerUpTimer);
-            powerUpTimer = setTimeout(() => {
-                spawnPowerUp();
-            }, powerUpFreq);
-        }
-
-        // Function to move a snake
-        function moveSnake(snake) {
-            const head = { ...snake.body[0] }; // Get the current head
-
-            // Update head position based on direction
-            switch (snake.direction) {
-                case 'up': head.y--; break;
-                case 'down': head.y++; break;
-                case 'left': head.x--; break;
-                case 'right': head.x++; break;
-            }
-
-            // Add new head to the body
-            snake.body.unshift(head);
-            snake.body.pop(); // Remove the last segment
-        }
-
-        // Function to check for collisions
-        function checkCollisions(snake, index) {
-            // Check if snake runs into itself or the other snake
-            const head = snake.body[0];
-            if (snake.body.slice(1).some(segment => segment.x === head.x && segment.y === head.y) ||
-                snakes[(index + 1) % 2].body.some(segment => segment.x === head.x && segment.y === head.y)) {
-                endGame(index); // End game on collision
-            }
-
-            // Check for apple collisions
-            apples.forEach((apple, appleIndex) => {
-                if (apple.x === head.x && apple.y === head.y) {
-                    apples.splice(appleIndex, 1); // Remove apple
-                    snake.body.push({}); // Grow snake
-                    if (index === 0) score1++; // Update player score
-                    else score2++;
-                    spawnApple(); // Spawn new apple
-                }
-            });
-        }
-
-        // Function to spawn a power-up
-        function spawnPowerUp() {
-            const powerUp = {
-                x: Math.floor(Math.random() * boardSize),
-                y: Math.floor(Math.random() * boardSize)
-            };
-
-            // Ensure power-up doesn't spawn on snake bodies
-            if (!snakes.some(snake => snake.body.some(segment => segment.x === powerUp.x && segment.y === powerUp.y))) {
-                powerUps.push(powerUp); // Add power-up to the array
-            } else {
-                spawnPowerUp(); // Try again if position is occupied
+            // Check snake collision
+            if (snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y) {
+                // If they collide, we will end the game
+                const loserIndex = snakes[0].body[0].x === snakes[1].body[0].x && snakes[0].body[0].y === snakes[1].body[0].y ? null : -1;
+                endGame(loserIndex);
             }
         }
 
-        // Function to end the game
-        function endGame(index) {
-            gameRunning = false; // Stop the game loop
-            clearInterval(gameInterval); // Clear the interval
-            alert(`Game Over! Player ${index + 1} lost!`); // Show game over alert
-            resetGame(); // Reset game state
+        function handlePowerUp(snake, powerUp) {
+            if (powerUp.value === 1) { // Speed Up
+                snakeSpeed = Math.min(10, snakeSpeed + 1);
+            } else if (powerUp.value === 2) { // Speed Down
+                snakeSpeed = Math.max(1, snakeSpeed - 1);
+            } else if (powerUp.value === 3) { // Score Up
+                if (snake === snakes[0]) score1 += 20; // Increment score for Player 1
+                else score2 += 20; // Increment score for Player 2
+                scoreDisplay.innerText = `Score: ${score1}`;
+            }
+            clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, 100 / snakeSpeed);
         }
 
-        // Function to reset the game
-        function resetGame() {
-            snakes = [];
-            apples = [];
-            powerUps = [];
-            score1 = 0;
-            score2 = 0;
-            draw(); // Redraw the empty state
+        function endGame(loserIndex) {
+            clearInterval(gameInterval);
+            clearInterval(powerUpTimer);
+            const winnerIndex = loserIndex === 0 ? 1 : 0;
+            const winnerMessage = `Player ${winnerIndex + 1} Wins!`;
+            alert(`Game Over! Final Score: Player 1 - ${score1}, Player 2 - ${score2}. ${winnerMessage}`);
+            document.location.reload(); // Reload the game with the same settings
         }
 
-        // Event listeners for starting the game and showing game info
+        function controlSnake(event) {
+            if (event.key === 'w' && snakes[0].direction.y === 0) {
+                snakes[0].direction = { x: 0, y: -1 };
+            } else if (event.key === 's' && snakes[0].direction.y === 0) {
+                snakes[0].direction = { x: 0, y: 1 };
+            } else if (event.key === 'a' && snakes[0].direction.x === 0) {
+                snakes[0].direction = { x: -1, y: 0 };
+            } else if (event.key === 'd' && snakes[0].direction.x === 0) {
+                snakes[0].direction = { x: 1, y: 0 };
+            }
+            // Player 2 controls
+            if (event.key === 'ArrowUp' && snakes[1].direction.y === 0) {
+                snakes[1].direction = { x: 0, y: -1 };
+            } else if (event.key === 'ArrowDown' && snakes[1].direction.y === 0) {
+                snakes[1].direction = { x: 0, y: 1 };
+            } else if (event.key === 'ArrowLeft' && snakes[1].direction.x === 0) {
+                snakes[1].direction = { x: -1, y: 0 };
+            } else if (event.key === 'ArrowRight' && snakes[1].direction.x === 0) {
+                snakes[1].direction = { x: 1, y: 0 };
+            }
+        }
+
+        document.addEventListener('keydown', controlSnake);
         startBtn.addEventListener('click', initGame);
-        infoBtn.addEventListener('click', () => {
-            gameInfo.style.display = 'block'; // Show game info
-        });
-        closeInfo.addEventListener('click', () => {
-            gameInfo.style.display = 'none'; // Hide game info
-        });
+        infoBtn.addEventListener('click', () => gameInfo.style.display = 'block');
+        closeInfo.addEventListener('click', () => gameInfo.style.display = 'none');
     </script>
 </body>
 </html>
