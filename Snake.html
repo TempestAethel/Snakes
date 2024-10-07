@@ -320,39 +320,51 @@
       return Math.floor(Math.random() * (max - min)) + min; // Random integer calculation
     }
 
-    // Handle keyboard input for snake movement
     document.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'ArrowUp':
-        case 'w':
-          if (snake.dy === 0) { // Prevent reversing direction
-            snake.dx = 0;
-            snake.dy = -grid; // Move up
-          }
-          break;
-        case 'ArrowDown':
-        case 's':
-          if (snake.dy === 0) { // Prevent reversing direction
-            snake.dx = 0;
-            snake.dy = grid; // Move down
-          }
-          break;
-        case 'ArrowLeft':
-        case 'a':
-          if (snake.dx === 0) { // Prevent reversing direction
-            snake.dx = -grid; // Move left
-            snake.dy = 0;
-          }
-          break;
-        case 'ArrowRight':
-        case 'd':
-          if (snake.dx === 0) { // Prevent reversing direction
-            snake.dx = grid; // Move right
-            snake.dy = 0;
-          }
-          break;
+  const currentTime = Date.now(); // Get the current time
+  if (currentTime - lastDirectionChange < DIRECTION_CHANGE_COOLDOWN) {
+    return; // Ignore input if within cooldown
+  }
+
+      let lastDirectionChange = 0; // Track the last direction change time
+const DIRECTION_CHANGE_COOLDOWN = 100; // Time in milliseconds before another direction change is allowed
+
+      
+  switch (e.key) {
+    case 'ArrowUp':
+    case 'w':
+      if (snake.dy === 0) {
+        snake.dx = 0;
+        snake.dy = -grid; // Move up
+        lastDirectionChange = currentTime; // Update last direction change time
       }
-    });
+      break;
+    case 'ArrowDown':
+    case 's':
+      if (snake.dy === 0) {
+        snake.dx = 0;
+        snake.dy = grid; // Move down
+        lastDirectionChange = currentTime; // Update last direction change time
+      }
+      break;
+    case 'ArrowLeft':
+    case 'a':
+      if (snake.dx === 0) {
+        snake.dx = -grid; // Move left
+        snake.dy = 0;
+        lastDirectionChange = currentTime; // Update last direction change time
+      }
+      break;
+    case 'ArrowRight':
+    case 'd':
+      if (snake.dx === 0) {
+        snake.dx = grid; // Move right
+        snake.dy = 0;
+        lastDirectionChange = currentTime; // Update last direction change time
+      }
+      break;
+  }
+});
 
     // Main game loop for updating the game state
     function loop() {
