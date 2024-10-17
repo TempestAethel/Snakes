@@ -248,6 +248,12 @@
             }
         }
 
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'r' || event.key === 'R') {
+                location.reload();
+            }
+        });
+
         document.addEventListener('keydown', controlSnake); // Listen for keydown events for snake control
         startBtn.addEventListener('click', initGame); // Start the game on button click
         infoBtn.addEventListener('click', () => gameInfo.style.display = 'block'); // Show game info
