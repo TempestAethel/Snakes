@@ -246,6 +246,12 @@
         context.fillText(power.type + 1, power.x + 4, power.y + 12); // Display power type
       });
     }
+ 
+      document.addEventListener('keydown', function(event) {
+            if (event.key === 'r' || event.key === 'R') {
+                location.reload();
+            }
+        });
 
     // Apply the effect of a collected power-up
     function applyPower(type) {
